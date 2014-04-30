@@ -32,7 +32,7 @@ services:
         arguments: ["PackagistWebBundle:Package"]
 
     packagist.package_updater:
-        class: Packagist\WebBundle\Package\Updater
+        class: Drupal\ParseComposer\Updater
         arguments: [@doctrine]
 
     packagist.form.handler.registration:

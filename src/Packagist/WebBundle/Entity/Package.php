@@ -18,7 +18,7 @@ use Symfony\Component\Validator\ExecutionContext;
 use Doctrine\Common\Collections\ArrayCollection;
 use Composer\IO\NullIO;
 use Composer\Factory;
-use Composer\Repository\VcsRepository;
+use Drupal\ParseComposer\Repository as DrupalRepository;
 use Composer\Repository\RepositoryManager;
 
 /**
@@ -341,7 +341,7 @@ class Package
             $io = new NullIO();
             $config = Factory::createConfig();
             $io->loadConfiguration($config);
-            $repository = new VcsRepository(array('url' => $this->repository), $io, $config);
+            $repository = new DrupalRepository(array('url' => $this->repository), $io, $config);
 
             $driver = $this->vcsDriver = $repository->getDriver();
             if (!$driver) {

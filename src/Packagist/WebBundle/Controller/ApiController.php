@@ -14,7 +14,7 @@ namespace Packagist\WebBundle\Controller;
 
 use Composer\IO\BufferIO;
 use Composer\Factory;
-use Composer\Repository\VcsRepository;
+use Drupal\ParseComposer\Repository as DrupalRepository;
 use Composer\Repository\InvalidRepositoryException;
 use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Package\Loader\ArrayLoader;
@@ -81,6 +81,7 @@ class ApiController extends Controller
         unset($versions, $package, $packages);
 
         $response = new Response(json_encode($data), 200);
+        /* $response = new Response(str_replace('\\/', '/', json_encode($data)), 200); */
         $response->setSharedMaxAge(120);
         return $response;
     }
@@ -254,7 +255,7 @@ class ApiController extends Controller
                 $loader = new ValidatingArrayLoader(new ArrayLoader());
 
                 // prepare repository
-                $repository = new VcsRepository(array('url' => $package->getRepository()), $io, $config);
+                $repository = new DrupalRepository(array('url' => $package->getRepository()), $io, $config);
                 $repository->setLoader($loader);
 
                 // perform the actual update (fetch and re-scan the repository's source)

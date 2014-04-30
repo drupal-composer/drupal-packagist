@@ -16,6 +16,7 @@ use Composer\Console\HtmlOutputFormatter;
 use Composer\IO\BufferIO;
 use Composer\Factory;
 use Composer\Repository\VcsRepository;
+use Drupal\ParseComposer\Repository as DrupalRepository;
 use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Package\Loader\ArrayLoader;
 use Doctrine\ORM\NoResultException;
@@ -652,7 +653,7 @@ class WebController extends Controller
                 $io = new BufferIO('', OutputInterface::VERBOSITY_VERBOSE, new HtmlOutputFormatter(Factory::createAdditionalStyles()));
                 $config = Factory::createConfig();
                 $io->loadConfiguration($config);
-                $repository = new VcsRepository(array('url' => $package->getRepository()), $io, $config);
+                $repository = new DrupalRepository(array('url' => $package->getRepository()), $io, $config);
                 $loader = new ValidatingArrayLoader(new ArrayLoader());
                 $repository->setLoader($loader);
 
