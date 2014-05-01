@@ -46,7 +46,7 @@ class AddPackagesCommand extends ContainerAwareCommand
             ),
             new InputArgument(
                 'packages',
-                InputArgument::REQUIRED,
+                InputArgument::REQUIRED|InputArgument::IS_ARRAY,
                 'list of packages to add'
             )
         ))
