@@ -48,6 +48,7 @@ class GitDriver extends BaseDriver
      */
     public function getBranches()
     {
+        $branches = array();
         foreach (parent::getBranches() as $branch => $hash) {
             $branches[$this->drupalSemVer($branch)] = $hash;
         }
@@ -59,6 +60,7 @@ class GitDriver extends BaseDriver
      */
     public function getTags()
     {
+        $tags = array();
         foreach (parent::getTags() as $tag => $hash) {
             $tags[$this->drupalSemVer($tag)] = $hash;
         }
@@ -114,6 +116,9 @@ class GitDriver extends BaseDriver
         if ('drupal' == $this->drupalProjectName) {
           $projectMap['drupal'] = clone($projectMap['system']);
           $drupal = $projectMap['drupal']->drupalInfo();
+        }
+        if (!isset($projectMap[$this->drupalProjectName])) {
+          return;
         }
         else {
           $drupal = $projectMap[$this->drupalProjectName]->drupalInfo();
