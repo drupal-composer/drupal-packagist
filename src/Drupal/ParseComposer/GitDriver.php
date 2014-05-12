@@ -103,6 +103,9 @@ class GitDriver extends BaseDriver
                 );
             }
         }
+        if (empty($projectMap)) {
+            return;
+        }
         if ('drupal' == $this->drupalProjectName) {
             $projectMap['drupal'] = clone($projectMap['system']);
         }
