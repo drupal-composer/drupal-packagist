@@ -98,7 +98,7 @@ class GitDriver extends BaseDriver
                 );
             }
             if (end($parts) === 'make') {
-                $make[$projectName] = new MakeFile(
+                $make[$projectName] = new Makefile(
                     $this->fileContents($identifier, $path)
                 );
             }
