@@ -29,6 +29,7 @@ class UpdaterTest extends \PHPUnit_Framework_TestCase
         $config = Factory::createConfig();
         $repository = new VcsRepository(['url' => 'http://git.drupal.org/project/views'], $io, $config);
         $updater->update($package, $repository);
-        var_dump($package->getVersions()->toArray());
+        $repository = new VcsRepository(['url' => 'http://git.drupal.org/project/panopoly'], $io, $config);
+        $updater->update($package, $repository);
     }
 }

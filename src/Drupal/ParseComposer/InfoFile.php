@@ -2,8 +2,6 @@
 
 namespace Drupal\ParseComposer;
 
-require_once __DIR__.'/common.inc';
-
 class InfoFile
 {
     private $name;
@@ -33,7 +31,7 @@ class InfoFile
         list($all, $project, $v, $versionConstraints) = array_pad($matches, 4, '');
         $project = trim($project);
         if (empty($versionConstraints)) {
-            return array('drupal/'.$project => '*');
+            return array('drupal/'.$project => Constraint::loose(new Version($this->info['core'][0])));
         }
         foreach (preg_split('/[, ]+/', $versionConstraints) as $versionConstraint) {
             preg_match(
@@ -42,18 +40,9 @@ class InfoFile
                 $matches
             );
             list($all, $symbols, $version) = $matches;
-            $versionParts = preg_split('/[-\.x]+/', $version);
-            $versionNumbers = array_filter($versionParts, 'is_numeric');
-            $extra = array_diff($versionParts, $versionNumbers);
-            if (count($versionNumbers) > 2 ) {
-                array_shift($versionNumbers);
-            }
-            else {
-                $versionNumbers = array_pad($versionNumbers, 2, 0);
-            }
-            $versionString = implode('.', array_merge($versionNumbers, $extra));
+            $versionString = (string) new Version($version);
             $version = str_replace('unstable', 'patch', $versionString);
-            $constraints[] = $symbols.$version.($extra ? '-'.$extra : '');
+            $constraints[] = $symbols.$version;
         }
         return array('drupal/'.$project => implode(',', $constraints));
     }
@@ -64,7 +53,7 @@ class InfoFile
     public function packageInfo()
     {
         $deps = isset($this->info['dependencies']) ? $this->info['dependencies'] : array();
-        $deps = is_array($deps) ? $deps : ($deps);
+        $deps = is_array($deps) ? $deps : array($deps);
         $info = array(
           'name' => 'drupal/'.$this->name,
           'description' => $this->info['description'],

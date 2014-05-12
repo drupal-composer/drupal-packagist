@@ -23,7 +23,10 @@
         "psr-0": {
             "Packagist": "src/",
             "Drupal": "src/"
-        }
+        },
+        "file": [
+            "src/Drupal/ParseComposer/common.inc"
+        ]
     },
     "require": {
         "php": ">=5.3.3",
