@@ -24,7 +24,7 @@
             "Packagist": "src/",
             "Drupal": "src/"
         },
-        "file": [
+        "files": [
             "src/Drupal/ParseComposer/common.inc"
         ]
     },
