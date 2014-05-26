@@ -11,10 +11,11 @@ class InfoFile
      * @param string $name machine name of Drupal project
      * @param string $info valid Drupal .info file contents
      */
-    public function __construct($name, $info)
+    public function __construct($name, $info, $core)
     {
         $this->name = $name;
         $this->info = \drupal_parse_info_format($info);
+        $this->core = $core;
     }
 
     /**
@@ -31,7 +32,9 @@ class InfoFile
         list($all, $project, $v, $versionConstraints) = array_pad($matches, 4, '');
         $project = trim($project);
         if (empty($versionConstraints)) {
-            return array('drupal/'.$project => Constraint::loose(new Version($this->info['core'][0])));
+          return array(
+            'drupal/'.$project => Constraint::loose(new Version($this->core))
+          );
         }
         foreach (preg_split('/[, ]+/', $versionConstraints) as $versionConstraint) {
             preg_match(
@@ -56,9 +59,11 @@ class InfoFile
         $deps = is_array($deps) ? $deps : array($deps);
         $info = array(
           'name' => 'drupal/'.$this->name,
-          'description' => $this->info['description'],
           'require' => $this->constraint('drupal'),
         );
+        if (isset($this->info['description'])) {
+          $info['description'] = $this->info['description'];
+        }
         foreach($deps as $dep) {
             $info['require'] += $this->constraint($dep);
         }

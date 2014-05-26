@@ -16,8 +16,7 @@ class Repository extends VcsRepository
         parent::__construct($repoConfig, $io, $config, $dispatcher, $drivers);
         $parts = preg_split('{[/:]}', $this->url);
         $last = end($parts);
-        $this->drupalProjectName = current(explode('.', $last));
-        $this->verbose = TRUE;
+        $this->repoConfig['drupalProjectName'] = current(explode('.', $last));
     }
 
     public static function create(VcsRepository $repository)
@@ -32,12 +31,5 @@ class Repository extends VcsRepository
     public function hadInvalidBranches()
     {
         return FALSE;
-    }
-
-    public function getDriver()
-    {
-        $driver = parent::getDriver();
-        $driver->drupalProjectName = $this->drupalProjectName;
-        return $driver;
     }
 }

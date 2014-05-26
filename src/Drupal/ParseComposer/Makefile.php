@@ -69,14 +69,14 @@ class Makefile
     private function getVersionFromPath(array $path)
     {
         if ($versionString = $this->getMakeInfo($path)) {
-            return $this->makeVersion($versionString);
+            return $this->makeVersion($versionString, $path[1]);
         }
         return false;
     }
 
-    private function makeVersion($versionString)
+    private function makeVersion($versionString, $name = null)
     {
-        $version = new Version($this->makeInfo['core'][0]);
+        $version = new Version($this->makeInfo['core'][0], ($name == 'drupal'));
         $version->parse($versionString);
         return (string) $version;
     }

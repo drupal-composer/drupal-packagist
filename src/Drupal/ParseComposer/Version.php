@@ -10,8 +10,9 @@ class Version
     private $minor = 0;
     private $extra;
 
-    public function __construct($version)
+    public function __construct($version, $isCore = false)
     {
+        $this->isCore = $isCore;
         if (strlen($version) === 1) {
             $this->core = (int) $version;
         }
@@ -23,6 +24,14 @@ class Version
     public function __toString()
     {
         return $this->getSemver();
+    }
+
+    public static function valid($version)
+    {
+        return !!preg_match(
+            '/^\d+\.[0-9x]+(-\d+\.[0-9x]+)*(-[a-z]+\d*)*$/',
+            $version
+        );
     }
 
     public function getCore()
@@ -40,19 +49,30 @@ class Version
     {
         $parts = explode('-', $versionString);
         switch (count($parts)) {
-        case 3:
-            list($this->core, $version, $this->extra) = $parts;
-            break;
-        case 2:
-            list($version, $this->extra) = $parts;
-            break;
         case 1:
             list($version) = $parts;
             break;
+        case 2:
+            if ($this->core || $this->isCore) {
+                list($version, $extra) = $parts;
+            }
+            else {
+                list($this->core, $version) = $parts;
+            }
+            break;
+        case 3:
+        default:
+            list($this->core, $version, $this->extra) = $parts;
         }
-        list($this->major, $this->minor) = explode('.', $version);
+        if ($this->isCore) {
+            list($this->core, $this->major) = explode('.', $version);
+        }
+        else {
+            list($this->major, $this->minor) = explode('.', $version);
+        }
         if ($this->minor === 'x') {
             $this->extra = 'dev';
         }
+        $this->core = intval($this->core);
     }
 }
