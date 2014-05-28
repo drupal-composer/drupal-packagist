@@ -87,7 +87,7 @@ class AddPackagesCommand extends ContainerAwareCommand
                 $packagistPackages[$fullName] = true;
                 $em->persist($package);
                 if ((count($packagistPackages) - count($flushed)) >= 10) {
-                    $em->flush;
+                    $em->flush();
                     $flushed = $packagistPackages;
                 }
             }
