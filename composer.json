@@ -21,8 +21,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Packagist": "src/",
-            "Drupal": "src/"
+            "Packagist": "src/"
         },
         "files": [
             "src/Drupal/ParseComposer/common.inc"
@@ -57,7 +56,9 @@
         "zendframework/zend-version": "2.0.*",
 
         "kriswallsmith/assetic": "@dev",
-        "pagerfanta/pagerfanta": "@dev"
+        "pagerfanta/pagerfanta": "@dev",
+        "guzzle/http": "*",
+        "drupal/parse-composer": "dev-master@dev"
     },
     "scripts": {
         "post-install-cmd": [
@@ -79,6 +80,22 @@
         {
             "type": "composer",
             "url": "http://packages.zendframework.com/"
+        },
+        {
+            "type": "git",
+            "url": "https://github.com/winmillwill/drupal-parse-composer"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "drupal/drupal",
+                "version": "7.28.0",
+                "dist":
+                {
+                    "url": "http://ftp.drupal.org/files/projects/drupal-7.28.zip",
+                    "type": "zip"
+                }
+            }
         }
     ]
 }

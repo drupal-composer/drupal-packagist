@@ -72,7 +72,7 @@ class AddPackagesCommand extends ContainerAwareCommand
             : new BufferIO('');
 
         $em = $doctrine->getManager();
-        $packagistPackages = array();
+        $flushed = $packagistPackages = array();
         foreach ($packages as $key => $name) {
             $fullName = $name;
             if ($vendor = $input->getOption('vendor')) {
@@ -84,8 +84,12 @@ class AddPackagesCommand extends ContainerAwareCommand
                     sprintf($input->getOption('repo-pattern'), $fullName, $name, $vendor)
                 );
                 $package->setName($fullName);
-                $packagistPackages[$fullName] = $package;
+                $packagistPackages[$fullName] = true;
                 $em->persist($package);
+                if ((count($packagistPackages) - count($flushed)) >= 10) {
+                    $em->flush;
+                    $flushed = $packagistPackages;
+                }
             }
         }
         $em->flush();
