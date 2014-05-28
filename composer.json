@@ -22,10 +22,7 @@
     "autoload": {
         "psr-0": {
             "Packagist": "src/"
-        },
-        "files": [
-            "src/Drupal/ParseComposer/common.inc"
-        ]
+        }
     },
     "require": {
         "php": ">=5.3.3",
