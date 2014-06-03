@@ -87,42 +87,18 @@ class UpdatePackagesCommand extends ContainerAwareCommand
         if ($verbose && $input->getOption('notify-failures')) {
             throw new \LogicException('Failures can not be notified in verbose mode since the output is piped to the CLI');
         }
+        $client = $this->getContainer()
+            ->get('old_sound_rabbit_mq.package_update_task_producer');
 
         $input->setInteractive(false);
-        $config = Factory::createConfig();
-        $io = $verbose ? new ConsoleIO($input, $output, $this->getApplication()->getHelperSet()) : new BufferIO('');
-        $io->loadConfiguration($config);
-        $loader = new ValidatingArrayLoader(new ArrayLoader());
-
         while ($ids) {
-            $packages = $doctrine->getRepository('PackagistWebBundle:Package')->getPackagesWithVersions(array_splice($ids, 0, 50));
-
-            foreach ($packages as $package) {
-                if ($verbose) {
-                    $output->writeln('Importing '.$package->getRepository());
-                }
-                try {
-                    if (null === $io || $io instanceof BufferIO) {
-                        $io = new BufferIO('');
-                        $io->loadConfiguration($config);
-                    }
-                    $repository = new VcsRepository(array('url' => $package->getRepository()), $io, $config);
-                    $repository->setLoader($loader);
-                    $updater->update($package, $repository, $flags, $start);
-                } catch (InvalidRepositoryException $e) {
-                    $output->writeln('<error>Broken repository in '.$router->generate('view_package', array('name' => $package->getName()), true).': '.$e->getMessage().'</error>');
-                    if ($input->getOption('notify-failures')) {
-                        if (!$this->getContainer()->get('packagist.package_manager')->notifyUpdateFailure($package, $e, $io->getOutput())) {
-                            $output->writeln('<error>Failed to notify maintainers</error>');
-                        }
-                    }
-                } catch (\Exception $e) {
-                    $output->writeln('<error>Error updating '.$router->generate('view_package', array('name' => $package->getName()), true).' ['.get_class($e).']: '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().'</error>');
-                }
-            }
-
-            $doctrine->getManager()->clear();
-            unset($packages);
+            $result = $client->publish(serialize(
+                array(
+                    'flags' => $flags,
+                    'package_ids' => array_splice($ids, 0, 50),
+                )
+            ));
+            $output->write(unserialize($result)['output']);
         }
     }
 }
