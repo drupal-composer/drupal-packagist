@@ -81,9 +81,6 @@ class UpdatePackagesCommand extends ContainerAwareCommand
             $flags = Updater::DELETE_BEFORE;
         }
 
-        $updater = $this->getContainer()->get('packagist.package_updater');
-        $start = new \DateTime();
-
         if ($verbose && $input->getOption('notify-failures')) {
             throw new \LogicException('Failures can not be notified in verbose mode since the output is piped to the CLI');
         }

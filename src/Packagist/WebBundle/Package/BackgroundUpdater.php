@@ -47,16 +47,16 @@ class BackgroundUpdater implements ConsumerInterface {
                     $start
                 );
             } catch (InvalidRepositoryException $e) {
-                $output->writeln('<error>Broken repository in '.$router->generate('view_package', array('name' => $package->getName()), true).': '.$e->getMessage().'</error>');
+                $output->writeln('<error>Broken repository in '.$this->router->generate('view_package', array('name' => $package->getName()), true).': '.$e->getMessage().'</error>');
                 if ($input->getOption('notify-failures')) {
                     if (!$this->container->get('packagist.package_manager')->notifyUpdateFailure($package, $e, $io->getOutput())) {
                         $output->writeln('<error>Failed to notify maintainers</error>');
                     }
                 }
             } catch (\Exception $e) {
-                $output->writeln('<error>Error updating '.$router->generate('view_package', array('name' => $package->getName()), true).' ['.get_class($e).']: '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().'</error>');
+                $output->writeln('<error>Error updating '.$this->router->generate('view_package', array('name' => $package->getName()), true).' ['.get_class($e).']: '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().'</error>');
             }
-            $doctrine->getManager()->clear();
+            $this->doctrine->getManager()->clear();
         }
         return serialize(array(
             'output' => $output->getOutput()
