@@ -23,6 +23,7 @@ class AppKernel extends Kernel
             new WhiteOctober\PagerfantaBundle\WhiteOctoberPagerfantaBundle(),
             new Nelmio\SolariumBundle\NelmioSolariumBundle(),
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
+            new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle()
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

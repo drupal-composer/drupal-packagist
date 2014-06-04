@@ -55,7 +55,8 @@
         "kriswallsmith/assetic": "@dev",
         "pagerfanta/pagerfanta": "@dev",
         "guzzle/http": "*",
-        "drupal/parse-composer": "dev-master@dev"
+        "drupal/parse-composer": "dev-master@dev",
+        "oldsound/rabbitmq-bundle": "1.4.*"
     },
     "scripts": {
         "post-install-cmd": [
