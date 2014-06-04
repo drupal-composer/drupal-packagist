@@ -81,12 +81,17 @@ class AddPackagesCommand extends ContainerAwareCommand
             if (!isset($packagistPackages[$fullName])) {
                 $package = new Package();
                 $package->setRepository(
-                    sprintf($input->getOption('repo-pattern'), $fullName, $name, $vendor)
+                    sprintf(
+                        $input->getOption('repo-pattern'),
+                        $fullName,
+                        $name,
+                        $vendor
+                    )
                 );
                 $package->setName($fullName);
                 $packagistPackages[$fullName] = true;
                 $em->persist($package);
-                if ((count($packagistPackages) - count($flushed)) >= 10) {
+                if ((count($packagistPackages) - count($flushed)) >= 100) {
                     $em->flush();
                     $flushed = $packagistPackages;
                 }
