@@ -7,6 +7,7 @@ use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\IO\BufferIO;
 use PhpAmqpLib\Message\AMQPMessage;
+use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 
 class BackgroundUpdater implements ConsumerInterface {
 
