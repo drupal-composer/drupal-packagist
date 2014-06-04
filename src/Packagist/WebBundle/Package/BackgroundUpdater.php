@@ -1,5 +1,5 @@
 <?php
-namespace Packagist\Package;
+namespace Packagist\WebBundle\Package;
 
 use Composer\Repository\VcsRepository;
 use Composer\Factory;
