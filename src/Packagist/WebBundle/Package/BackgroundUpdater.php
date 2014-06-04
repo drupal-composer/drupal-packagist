@@ -18,8 +18,8 @@ class BackgroundUpdater implements ConsumerInterface {
     public function __construct($container)
     {
         $this->container = $container;
-        $this->doctrine = $this->getContainer()->get('doctrine');
-        $this->router = $this->getContainer()->get('router');
+        $this->doctrine = $container->get('doctrine');
+        $this->router = $container->get('router');
     }
 
     public function execute(AMQPMessage $message)
