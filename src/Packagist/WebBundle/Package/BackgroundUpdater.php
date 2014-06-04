@@ -33,6 +33,7 @@ class BackgroundUpdater implements ConsumerInterface {
         $updater = $this->container->get('packagist.package_updater');
 	$output = new BufferIO('');
 	$output->loadConfiguration($config);
+        $start = new \DateTime();
         foreach ($packages as $package) {
             try {
                 $io = new BufferIO('');
@@ -61,6 +62,7 @@ class BackgroundUpdater implements ConsumerInterface {
             }
             $this->doctrine->getManager()->clear();
         }
+        unset($packages);
         return serialize(array(
             'output' => $output->getOutput()
         ));

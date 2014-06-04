@@ -85,16 +85,24 @@ class UpdatePackagesCommand extends ContainerAwareCommand
             throw new \LogicException('Failures can not be notified in verbose mode since the output is piped to the CLI');
         }
         $client = $this->getContainer()
-            ->get('old_sound_rabbit_mq.update_packages_producer');
+            ->get('old_sound_rabbit_mq.update_packages_rpc');
 
         $input->setInteractive(false);
+        $request_id = 1;
         while ($ids) {
-            $result = $client->publish(serialize(
-                array(
-                    'flags' => $flags,
-                    'package_ids' => array_splice($ids, 0, 50),
-                )
-            ));
+            $output->write('Queuing job '.$request_id);
+            $client->addRequest(
+                serialize(
+                    array(
+                        'flags' => $flags,
+                        'package_ids' => array_splice($ids, 0, 50),
+                    )
+                ),
+                'update_packages',
+                $request_id++
+            );
+        }
+        foreach ($client->getReplies() as $result) {
             $output->write(unserialize($result)['output']);
         }
     }
