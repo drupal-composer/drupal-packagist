@@ -85,7 +85,7 @@ class UpdatePackagesCommand extends ContainerAwareCommand
             throw new \LogicException('Failures can not be notified in verbose mode since the output is piped to the CLI');
         }
         $client = $this->getContainer()
-            ->get('old_sound_rabbit_mq.package_update_task_producer');
+            ->get('old_sound_rabbit_mq.update_packages_producer');
 
         $input->setInteractive(false);
         while ($ids) {

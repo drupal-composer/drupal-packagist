@@ -31,6 +31,8 @@ class BackgroundUpdater implements ConsumerInterface {
             ->getRepository('PackagistWebBundle:Package')
             ->getPackagesWithVersions($parameters['package_ids']);
         $updater = $this->container->get('packagist.package_updater');
+	$output = new BufferIO('');
+	$output->loadConfiguration($config);
         foreach ($packages as $package) {
             try {
                 $io = new BufferIO('');
@@ -48,14 +50,14 @@ class BackgroundUpdater implements ConsumerInterface {
                     $start
                 );
             } catch (InvalidRepositoryException $e) {
-                $output->writeln('<error>Broken repository in '.$this->router->generate('view_package', array('name' => $package->getName()), true).': '.$e->getMessage().'</error>');
+                $output->write('<error>Broken repository in '.$this->router->generate('view_package', array('name' => $package->getName()), true).': '.$e->getMessage().'</error>');
                 if ($input->getOption('notify-failures')) {
                     if (!$this->container->get('packagist.package_manager')->notifyUpdateFailure($package, $e, $io->getOutput())) {
-                        $output->writeln('<error>Failed to notify maintainers</error>');
+                        $output->write('<error>Failed to notify maintainers</error>');
                     }
                 }
             } catch (\Exception $e) {
-                $output->writeln('<error>Error updating '.$this->router->generate('view_package', array('name' => $package->getName()), true).' ['.get_class($e).']: '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().'</error>');
+                $output->write('<error>Error updating '.$this->router->generate('view_package', array('name' => $package->getName()), true).' ['.get_class($e).']: '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().'</error>');
             }
             $this->doctrine->getManager()->clear();
         }
