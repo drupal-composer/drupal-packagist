@@ -15,56 +15,82 @@ class BackgroundUpdater implements ConsumerInterface {
     private $doctrine;
     private $router;
 
-    public function __construct($container)
+    public function __construct($doctrine, $router, $updater)
     {
-        $this->container = $container;
-        $this->doctrine = $container->get('doctrine');
-        $this->router = $container->get('router');
+        $this->doctrine = $doctrine;
+        $this->router   = $router;
+        $this->updater  = $updater;
     }
 
     public function execute(AMQPMessage $message)
     {
-        $parameters = unserialize($message->body);
-        $loader = new ValidatingArrayLoader(new ArrayLoader());
         $config = Factory::createConfig();
-        $packages = $this->doctrine
-            ->getRepository('PackagistWebBundle:Package')
-            ->getPackagesWithVersions($parameters['package_ids']);
-        $updater = $this->container->get('packagist.package_updater');
-	$output = new BufferIO('');
-	$output->loadConfiguration($config);
-        $start = new \DateTime();
-        foreach ($packages as $package) {
-            try {
-                $io = new BufferIO('');
-                $io->loadConfiguration($config);
-                $repository = new VcsRepository(
-                    array('url' => $package->getRepository()),
-                    $io,
-                    $config
-                );
-                $repository->setLoader($loader);
-                $updater->update(
-                    $package,
-                    $repository,
-                    $parameters['flags'],
-                    $start
-                );
-            } catch (InvalidRepositoryException $e) {
-                $output->write('<error>Broken repository in '.$this->router->generate('view_package', array('name' => $package->getName()), true).': '.$e->getMessage().'</error>');
-                if ($input->getOption('notify-failures')) {
-                    if (!$this->container->get('packagist.package_manager')->notifyUpdateFailure($package, $e, $io->getOutput())) {
-                        $output->write('<error>Failed to notify maintainers</error>');
-                    }
+        $packageName = unserialize($message->body)['package_name'];
+        $packageRepository = $this->doctrine
+            ->getRepository('PackagistWebBundle:Package');
+        if ($packageRepository->packageExists($packageName)) {
+            $package = $packageRepository->getPackageByName($packageName);
+            $cacheDir = $config->get('cache-repo-dir')
+                .'/'.preg_replace('{[^a-z0-9.]}i', '-', $package->getRepository());
+            if (file_exists($cacheDir)) {
+                $loader = new ValidatingArrayLoader(new ArrayLoader());
+                $output = new BufferIO('');
+                $output->loadConfiguration($config);
+                $updater = $this->updater;
+                try {
+                    $io = new BufferIO('');
+                    $io->loadConfiguration($config);
+                    $repository = new VcsRepository(
+                        array('url' => $package->getRepository()),
+                        $io,
+                        $config
+                    );
+                    $repository->setLoader($loader);
+                    echo "updating $packageName\n";
+                    $updater->update(
+                        $package,
+                        $repository
+                    );
+                    $output->write('Updated '.$package->getName());
                 }
-            } catch (\Exception $e) {
-                $output->write('<error>Error updating '.$this->router->generate('view_package', array('name' => $package->getName()), true).' ['.get_class($e).']: '.$e->getMessage().' at '.$e->getFile().':'.$e->getLine().'</error>');
+                catch (InvalidRepositoryException $e) {
+                    $output->write(
+                        '<error>Broken repository in '
+                        .$this->router->generate(
+                            'view_package',
+                            array('name' => $package->getName())
+                            , true
+                        ).': '.$e->getMessage().'</error>'
+                    );
+                    if ($input->getOption('notify-failures')) {
+                        if (!$this->container->get('packagist.package_manager')
+                            ->notifyUpdateFailure($package, $e, $io->getOutput())
+                        ) {
+                            $output->write(
+                                '<error>Failed to notify maintainers</error>'
+                            );
+                        }
+                    }
+                    throw $e;
+                }
+                catch (\Exception $e) {
+                    $output->write(
+                        '<error>Error updating '.$this->router->generate(
+                            'view_package',
+                            array('name' => $package->getName()),
+                            true
+                        ).' ['.get_class($e).']: '.$e->getMessage().' at '
+                        .$e->getFile().':'.$e->getLine().'</error>');
+                    return ConsumerInterface::MSG_REJECT;
+                }
+                $this->doctrine->getManager()->clear();
+                return serialize(array(
+                    'output' => $output->getOutput()
+                ));
             }
-            $this->doctrine->getManager()->clear();
+            echo "nacking -- not on disk: $packageName\n";
         }
-        unset($packages);
-        return serialize(array(
-            'output' => $output->getOutput()
-        ));
+        echo "nacking -- does not exist: $packageName\n";
+        return false;
     }
 }

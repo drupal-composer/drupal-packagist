@@ -23,21 +23,65 @@ parameters:
     google_analytics:
         ga_key:
 
-    github.client_id:
-    github.client_secret:
+    github.client_id: foo
+    github.client_secret: bar
 
-    # -- performance features --
-    # set both to apc to optimize things if it is available
+        # -- performance features --
+        # set both to apc to optimize things if it is available
     validation_cache_backend: ~
     doctrine_cache_backend: array
 
-    # -- security features --
+        # -- security features --
     secret: CHANGE_ME_IN_PROD
     remember_me.secret: CHANGE_ME_IN_PROD
 
-    # set to true to enforce ssl, make sure you have a proper certificate in place
+        # set to true to enforce ssl, make sure you have a proper certificate in place
     force_ssl: false
-    # e.g. [127.0.0.1] if the app is running behind a reverse proxy on localhost
+        # e.g. [127.0.0.1] if the app is running behind a reverse proxy on localhost
     trusted_proxies: ~
-    # e.g. ['.*\.?packagist\.org$'] to allow packagist.org and all subdomains as valid hosts
+        # e.g. ['.*\.?packagist\.org$'] to allow packagist.org and all subdomains as valid hosts
     trusted_hosts: ~
+
+old_sound_rabbit_mq:
+    connections:
+        default:
+            host:     'localhost'
+            port:     5672
+            user:     'guest'
+            password: 'guest'
+            vhost:    '/'
+    rpc_servers:
+        update_packages:
+            connection: default
+            callback:   packagist.background_package_updater
+        add_packages:
+            connection: default
+            callback:   packagist.background_package_adder
+    rpc_clients:
+        add_packages:
+            connection: default
+        update_packages:
+            connection: default
+    producers:
+        add_packages:
+            connection: default
+            exchange_options:
+                type: fanout
+                name: add-packages
+    consumers:
+        add_packages:
+            connection: default
+            queue_options:
+                name: add-packages
+            exchange_options:
+                type: fanout
+                name: add-packages
+            callback: packagist.background_package_adder
+        update_packages:
+            connection: default
+            queue_options:
+                name: update-packages
+            exchange_options:
+                type: fanout
+                name: add-packages
+            callback: packagist.background_package_updater

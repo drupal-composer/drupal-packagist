@@ -89,4 +89,10 @@ services:
     packagist.background_package_updater:
         class: Packagist\WebBundle\Package\BackgroundUpdater
         arguments:
-            - @service_container
+            - @doctrine
+            - @router
+            - @packagist.package_updater
+    packagist.background_package_adder:
+        class: Packagist\WebBundle\Package\BackgroundAdder
+        arguments:
+            - @doctrine
