@@ -90,7 +90,9 @@ class BackgroundUpdater implements ConsumerInterface {
             }
             echo "nacking -- not on disk: $packageName\n";
         }
-        echo "nacking -- does not exist: $packageName\n";
+        else {
+          echo "nacking -- does not exist: $packageName\n";
+        }
         return false;
     }
 }
