@@ -92,6 +92,7 @@ class BackgroundUpdater implements ConsumerInterface {
         }
         else {
           echo "nacking -- does not exist: $packageName\n";
+          return ConsumerInterface::MSG_REJECT;
         }
         return false;
     }
