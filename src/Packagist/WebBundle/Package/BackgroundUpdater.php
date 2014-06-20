@@ -28,6 +28,7 @@ class BackgroundUpdater implements ConsumerInterface {
         $packageName = unserialize($message->body)['package_name'];
         $packageRepository = $this->doctrine
             ->getRepository('PackagistWebBundle:Package');
+        $response = false;
         if ($packageRepository->packageExists($packageName)) {
             $package = $packageRepository->getPackageByName($packageName);
             $cacheDir = $config->get('cache-repo-dir')
@@ -83,8 +84,7 @@ class BackgroundUpdater implements ConsumerInterface {
                         .$e->getFile().':'.$e->getLine().'</error>');
                     return ConsumerInterface::MSG_REJECT;
                 }
-                $this->doctrine->getManager()->clear();
-                return serialize(array(
+                $response = serialize(array(
                     'output' => $output->getOutput()
                 ));
             }
@@ -93,6 +93,7 @@ class BackgroundUpdater implements ConsumerInterface {
         else {
           echo "nacking -- does not exist: $packageName\n";
         }
-        return false;
+        $this->doctrine->getManager()->clear();
+        return $response;
     }
 }
