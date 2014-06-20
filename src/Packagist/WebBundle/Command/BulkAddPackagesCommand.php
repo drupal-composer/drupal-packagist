@@ -50,10 +50,18 @@ class BulkAddPackagesCommand extends ContainerAwareCommand
     {
         $verbose = $input->getOption('verbose');
         $packageArgs = $input->getArgument('packages');
-        foreach ($packageArgs as $packageArg) {
+        $packages = [];
+        foreach ($packageArgs as $key => $packageArg) {
             if (file_exists($packageArg)) {
-                $packages = preg_split('/\s+/', file_get_contents($packageArg));
+                $packageArg = preg_split(
+                    '/\s+/',
+                    file_get_contents($packageArg)
+                );
             }
+            else {
+                $packageArg = [$packageArg];
+            }
+            $packages = array_merge($packages, $packageArg);
         }
         $io = $verbose
             ? new ConsoleIO(
