@@ -31,6 +31,7 @@ class BackgroundAdder implements ConsumerInterface {
             return serialize(array('output' => 'Added '. $body['package_name']));
         }
         echo "nacking {$body['package_name']}\n";
+        $em->clear();
         return ConsumerInterface::MSG_REJECT;
     }
 }
