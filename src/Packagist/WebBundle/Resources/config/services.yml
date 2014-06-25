@@ -92,6 +92,12 @@ services:
             - @doctrine
             - @router
             - @packagist.package_updater
+    packagist.background_package_upserter:
+        class: Packagist\WebBundle\Package\BackgroundUpserter
+        arguments:
+            - @doctrine
+            - @router
+            - @packagist.package_updater
     packagist.background_package_adder:
         class: Packagist\WebBundle\Package\BackgroundAdder
         arguments:
