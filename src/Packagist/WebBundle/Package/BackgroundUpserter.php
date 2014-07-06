@@ -9,6 +9,7 @@ use Composer\IO\BufferIO;
 use Packagist\WebBundle\Entity\Package;
 use PhpAmqpLib\Message\AMQPMessage;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
+use Drupal\ParseComposer\ReleaseInfoFactory;
 
 class BackgroundUpserter implements ConsumerInterface {
 
@@ -42,6 +43,13 @@ class BackgroundUpserter implements ConsumerInterface {
             $package->setName($body['package_name']);
             $em->persist($package);
             $em->flush();
+        }
+        $releaseInfoFactory = new ReleaseInfoFactory();
+        $releases = $releaseInfoFactory
+            ->getReleaseInfo($body['package_name'], [7, 8]);
+        if (empty($releases)) {
+            echo "no valid releases for {$body['package_name']}\n";
+            return ConsumerInterface::MSG_REJECT;
         }
         $package  = $packageRepository->getPackageByName($body['package_name']);
         $loader   = new ValidatingArrayLoader(new ArrayLoader());
