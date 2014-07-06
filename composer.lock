@@ -1,7 +1,8 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
     "hash": "4b561e55655989b09ec25fcf79ef8b1a",
     "packages": [
@@ -711,7 +712,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/winmillwill/drupal-parse-composer",
-                "reference": "0cb01852503cafb1849d28ac9c39e5153b772850"
+                "reference": "72ab19fa74a604bdc84c09fc5f8a6a31eb645781"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -727,7 +728,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Drupal\\ParseComposer\\": ""
+                    "Drupal\\ParseComposer\\": "src/"
                 },
                 "files": [
                     "bootstrap.php"
@@ -739,7 +740,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2014-05-23 16:42:21"
+            "time": "2014-07-06 18:10:57"
         },
         {
             "name": "friendsofsymfony/user-bundle",
