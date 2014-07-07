@@ -712,7 +712,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/winmillwill/drupal-parse-composer",
-                "reference": "d4b34770606da2df60a4fbc04a2606dbc3dee8d3"
+                "reference": "e2a818db2d1140610055ed62f651bb98a97130e0"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -740,7 +740,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2014-07-07 19:37:43"
+            "time": "2014-07-07 22:35:13"
         },
         {
             "name": "friendsofsymfony/user-bundle",
