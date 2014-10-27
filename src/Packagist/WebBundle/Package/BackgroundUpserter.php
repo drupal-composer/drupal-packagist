@@ -27,17 +27,19 @@ class BackgroundUpserter implements ConsumerInterface {
     public function execute(AMQPMessage $message)
     {
         $config = Factory::createConfig();
+        $loader = new ValidatingArrayLoader(new ArrayLoader());
+        $output = new BufferIO('');
+        $output->loadConfiguration($config);
+
         $body = unserialize($message->body);
-        $packageRepository = $this->doctrine
-            ->getRepository('PackagistWebBundle:Package');
         $response = false;
+
         $em = $this->doctrine->getManager();
-        // PackageRepository::packageExists() uses too much caching for us.
         $res = $em->createQuery("SELECT p.name FROM Packagist\WebBundle\Entity\Package p WHERE p.name = :name")
             ->setParameters(['name' => $body['package_name']])
             ->getResult();
         if (empty($res)) {
-            echo "adding {$body['package_name']}\n";
+            $output->write("adding {$body['package_name']}");
             $package = new Package();
             $package->setRepository($body['url']);
             $package->setName($body['package_name']);
@@ -48,13 +50,12 @@ class BackgroundUpserter implements ConsumerInterface {
         $releases = $releaseInfoFactory
             ->getReleaseInfo($body['package_name'], [7, 8]);
         if (empty($releases)) {
-            echo "no valid releases for {$body['package_name']}\n";
+            $output->write("no valid releases for {$body['package_name']}");
             return ConsumerInterface::MSG_REJECT;
         }
-        $package  = $packageRepository->getPackageByName($body['package_name']);
-        $loader   = new ValidatingArrayLoader(new ArrayLoader());
-        $output   = new BufferIO('');
-        $output->loadConfiguration($config);
+        $package = $this->doctrine
+            ->getRepository('PackagistWebBundle:Package')
+            ->getPackageByName($body['package_name']);
         try {
             $repository = new VcsRepository(
                 array('url' => $package->getRepository()),
@@ -62,7 +63,7 @@ class BackgroundUpserter implements ConsumerInterface {
                 $config
             );
             $repository->setLoader($loader);
-            echo "updating {$body['package_name']}\n";
+            $output->write("updating {$body['package_name']}");
             $this->updater->update(
                 $package,
                 $repository
