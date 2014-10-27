@@ -126,16 +126,28 @@ class WebController extends Controller
 
     /**
      * @Template()
-     * @Route("/explore/popular", name="browse_popular")
+     * @Route("/explore/popular.{_format}", name="browse_popular", defaults={"_format"="html"})
      * @Cache(smaxage=900)
      */
     public function popularAction(Request $req)
     {
         $redis = $this->get('snc_redis.default');
+        $perPage = $req->query->getInt('per_page', 15);
+        if ($perPage <= 0 || $perPage > 100) {
+            if ($req->getRequestFormat() === 'json') {
+                return new JsonResponse(array(
+                    'status' => 'error',
+                    'message' => 'The optional packages per_page parameter must be an integer between 1 and 100 (default: 15)',
+                ), 400);
+            }
+
+            $perPage = max(0, min(100, $perPage));
+        }
+
         $popularIds = $redis->zrevrange(
             'downloads:trending',
-            ($req->get('page', 1) - 1) * 15,
-            $req->get('page', 1) * 15 - 1
+            ($req->get('page', 1) - 1) * $perPage,
+            $req->get('page', 1) * $perPage - 1
         );
         $popular = $this->getDoctrine()->getRepository('PackagistWebBundle:Package')
             ->createQueryBuilder('p')->where('p.id IN (:ids)')->setParameter('ids', $popularIds)
@@ -145,7 +157,7 @@ class WebController extends Controller
         });
 
         $packages = new Pagerfanta(new FixedAdapter($redis->zcard('downloads:trending'), $popular));
-        $packages->setMaxPerPage(15);
+        $packages->setMaxPerPage($perPage);
         $packages->setCurrentPage($req->get('page', 1), false, true);
 
         $data = array(
@@ -154,24 +166,67 @@ class WebController extends Controller
         );
         $data['meta'] = $this->getPackagesMetadata($data['packages']);
 
+        if ($req->getRequestFormat() === 'json') {
+            $result = array(
+                'packages' => array(),
+                'total' => $packages->getNbResults(),
+            );
+
+            foreach ($packages as $package) {
+                $url = $this->generateUrl('view_package', array('name' => $package->getName()), true);
+
+                $result['packages'][] = array(
+                    'name' => $package->getName(),
+                    'description' => $package->getDescription() ?: '',
+                    'url' => $url,
+                    'downloads' => $data['meta']['downloads'][$package->getId()],
+                    'favers' => $data['meta']['favers'][$package->getId()],
+                );
+            }
+
+            if ($packages->hasNextPage()) {
+                $params = array(
+                    '_format' => 'json',
+                    'page' => $packages->getNextPage()
+                );
+                if ($perPage !== 15) {
+                    $params['per_page'] = $perPage;
+                }
+                $result['next'] = $this->generateUrl('browse_popular', $params, true);
+            }
+
+            return new JsonResponse($result);
+        }
+
         return $data;
     }
 
     /**
      * @Route("/packages/list.json", name="list", defaults={"_format"="json"})
      * @Method({"GET"})
-     * @Cache(smaxage=60)
+     * @Cache(smaxage=300)
      */
     public function listAction(Request $req)
     {
         $repo = $this->getDoctrine()->getRepository('PackagistWebBundle:Package');
+        $fields = (array) $req->query->get('fields', array());
+        $fields = array_intersect($fields, array('repository', 'type'));
+
+        if ($fields) {
+            $filters = array_filter(array(
+                'type' => $req->query->get('type'),
+                'vendor' => $req->query->get('vendor'),
+            ));
+
+            return new JsonResponse(array('packages' => $repo->getPackagesWithFields($filters, $fields)));
+        }
 
         if ($req->query->get('type')) {
             $names = $repo->getPackageNamesByType($req->query->get('type'));
         } elseif ($req->query->get('vendor')) {
             $names = $repo->getPackageNamesByVendor($req->query->get('vendor'));
         } else {
-            $names = array_keys($repo->getPackageNames());
+            $names = $repo->getPackageNames();
         }
 
         return new JsonResponse(array('packageNames' => $names));
@@ -224,7 +279,7 @@ class WebController extends Controller
 
             // filter by type
             if ($typeFilter) {
-                $filterQueryTerm = sprintf('type:%s', $select->getHelper()->escapeTerm($typeFilter));
+                $filterQueryTerm = sprintf('type:"%s"', $select->getHelper()->escapeTerm($typeFilter));
                 $filterQuery = $select->createFilterQuery('type')->setQuery($filterQueryTerm);
                 $select->addFilterQuery($filterQuery);
             }
@@ -235,7 +290,7 @@ class WebController extends Controller
                 foreach ((array) $tagsFilter as $tag) {
                     $tags[] = $select->getHelper()->escapeTerm($tag);
                 }
-                $filterQueryTerm = sprintf('tags:(%s)', implode(' AND ', $tags));
+                $filterQueryTerm = sprintf('tags:("%s")', implode('" AND "', $tags));
                 $filterQuery = $select->createFilterQuery('tags')->setQuery($filterQueryTerm);
                 $select->addFilterQuery($filterQuery);
             }
@@ -244,12 +299,30 @@ class WebController extends Controller
                 $form->bind($req);
                 if ($form->isValid()) {
                     $escapedQuery = $select->getHelper()->escapeTerm($form->getData()->getQuery());
+                    $escapedQuery = preg_replace('/(^| )\\\\-(\S)/', '$1-$2', $escapedQuery);
+                    $escapedQuery = preg_replace('/(^| )\\\\\+(\S)/', '$1+$2', $escapedQuery);
+                    if ((substr_count($escapedQuery, '"') % 2) == 0) {
+                        $escapedQuery = str_replace('\\"', '"', $escapedQuery);
+                    }
                     $select->setQuery($escapedQuery);
                 }
             }
 
             $paginator = new Pagerfanta(new SolariumAdapter($solarium, $select));
-            $paginator->setMaxPerPage(15);
+
+            $perPage = $req->query->getInt('per_page', 15);
+            if ($perPage <= 0 || $perPage > 100) {
+                if ($req->getRequestFormat() === 'json') {
+                    return new JsonResponse(array(
+                        'status' => 'error',
+                        'message' => 'The optional packages per_page parameter must be an integer between 1 and 100 (default: 15)',
+                    ), 400);
+                }
+
+                $perPage = max(0, min(100, $perPage));
+            }
+            $paginator->setMaxPerPage($perPage);
+
             $paginator->setCurrentPage($req->query->get('page', 1), false, true);
 
             $metadata = $this->getPackagesMetadata($paginator);
@@ -268,7 +341,11 @@ class WebController extends Controller
                 }
 
                 foreach ($paginator as $package) {
-                    $url = $this->generateUrl('view_package', array('name' => $package->name), true);
+                    if (ctype_digit((string) $package->id)) {
+                        $url = $this->generateUrl('view_package', array('name' => $package->name), true);
+                    } else {
+                        $url = $this->generateUrl('view_providers', array('name' => $package->name), true);
+                    }
 
                     $result['results'][] = array(
                         'name' => $package->name,
@@ -276,6 +353,7 @@ class WebController extends Controller
                         'url' => $url,
                         'downloads' => $metadata['downloads'][$package->id],
                         'favers' => $metadata['favers'][$package->id],
+                        'repository' => $package->repository,
                     );
                 }
 
@@ -290,6 +368,9 @@ class WebController extends Controller
                     }
                     if ($typeFilter) {
                         $params['type'] = $typeFilter;
+                    }
+                    if ($perPage !== 15) {
+                        $params['per_page'] = $perPage;
                     }
                     $result['next'] = $this->generateUrl('search', $params, true);
                 }
@@ -448,13 +529,13 @@ class WebController extends Controller
      * @Route(
      *     "/p/{name}.{_format}",
      *     name="view_package_alias",
-     *     requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?", "_format"="(html|json)"},
+     *     requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?", "_format"="(json)"},
      *     defaults={"_format"="html"}
      * )
      * @Route(
      *     "/packages/{name}",
      *     name="view_package_alias2",
-     *     requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?/", "_format"="(html|json)"},
+     *     requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?/", "_format"="(json)"},
      *     defaults={"_format"="html"}
      * )
      * @Method({"GET"})
@@ -467,9 +548,36 @@ class WebController extends Controller
     /**
      * @Template()
      * @Route(
+     *     "/providers/{name}",
+     *     name="view_providers",
+     *     requirements={"name"="[A-Za-z0-9/_.-]+?"},
+     *     defaults={"_format"="html"}
+     * )
+     * @Method({"GET"})
+     */
+    public function viewProvidersAction(Request $req, $name)
+    {
+        $repo = $this->getDoctrine()->getRepository('PackagistWebBundle:Package');
+        $providers = $repo->findProviders($name);
+        if (!$providers) {
+            return $this->redirect($this->generateUrl('search', array('q' => $name, 'reason' => 'package_not_found')));
+        }
+
+        return $this->render('PackagistWebBundle:Web:providers.html.twig', array(
+            'name' => $name,
+            'packages' => $providers,
+            'meta' => $this->getPackagesMetadata($providers),
+            'paginate' => false,
+            'searchForm' => $this->createSearchForm()->createView()
+        ));
+    }
+
+    /**
+     * @Template()
+     * @Route(
      *     "/packages/{name}.{_format}",
      *     name="view_package",
-     *     requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?", "_format"="(html|json)"},
+     *     requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?", "_format"="(json)"},
      *     defaults={"_format"="html"}
      * )
      * @Method({"GET"})
@@ -484,6 +592,10 @@ class WebController extends Controller
         } catch (NoResultException $e) {
             if ('json' === $req->getRequestFormat()) {
                 return new JsonResponse(array('status' => 'error', 'message' => 'Package not found'), 404);
+            }
+
+            if ($providers = $repo->findProviders($name)) {
+                return $this->redirect($this->generateUrl('view_providers', array('name' => $name)));
             }
 
             return $this->redirect($this->generateUrl('search', array('q' => $name, 'reason' => 'package_not_found')));
@@ -508,14 +620,35 @@ class WebController extends Controller
         }
 
         $version = null;
-        if (count($package->getVersions())) {
+        $versions = $package->getVersions();
+        if (is_object($versions)) {
+            $versions = $versions->toArray();
+        }
+
+        usort($versions, function ($a, $b) {
+            $aVersion = $a->getNormalizedVersion();
+            $bVersion = $b->getNormalizedVersion();
+            $aVersion = preg_replace('{^dev-.*}', '0.0.0-alpha', $aVersion);
+            $bVersion = preg_replace('{^dev-.*}', '0.0.0-alpha', $bVersion);
+
+            // equal versions are sorted by date
+            if ($aVersion === $bVersion) {
+                return $b->getReleasedAt() > $a->getReleasedAt() ? 1 : -1;
+            }
+
+            // the rest is sorted by version
+            return version_compare($bVersion, $aVersion);
+        });
+
+        if (count($versions)) {
             $versionRepo = $this->getDoctrine()->getRepository('PackagistWebBundle:Version');
-            $version = $versionRepo->getFullVersion($package->getVersions()->first()->getId());
+            $version = $versionRepo->getFullVersion(reset($versions)->getId());
         }
 
         $data = array(
             'package' => $package,
-            'version' => $version
+            'version' => $version,
+            'versions' => $versions,
         );
 
         try {
@@ -545,6 +678,61 @@ class WebController extends Controller
         }
 
         return $data;
+    }
+
+    /**
+     * @Template()
+     * @Route(
+     *     "/packages/{name}/downloads.{_format}",
+     *     name="package_downloads_full",
+     *     requirements={"name"="[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+?", "_format"="(json)"}
+     * )
+     * @Method({"GET"})
+     */
+    public function viewPackageDownloadsAction(Request $req, $name)
+    {
+        $repo = $this->getDoctrine()->getRepository('PackagistWebBundle:Package');
+
+        try {
+            /** @var $package Package */
+            $package = $repo->findOneByName($name);
+        } catch (NoResultException $e) {
+            if ('json' === $req->getRequestFormat()) {
+                return new JsonResponse(array('status' => 'error', 'message' => 'Package not found'), 404);
+            }
+
+            if ($providers = $repo->findProviders($name)) {
+                return $this->redirect($this->generateUrl('view_providers', array('name' => $name)));
+            }
+
+            return $this->redirect($this->generateUrl('search', array('q' => $name, 'reason' => 'package_not_found')));
+        }
+
+        $versions = $package->getVersions();
+        $data = array(
+            'name' => $package->getName(),
+        );
+
+        try {
+            $data['downloads']['total'] = $this->get('packagist.download_manager')->getDownloads($package);
+            $data['favers'] = $this->get('packagist.favorite_manager')->getFaverCount($package);
+        } catch (ConnectionException $e) {
+            $data['downloads']['total'] = null;
+            $data['favers'] = null;
+        }
+
+        foreach ($versions as $version) {
+            try {
+                $data['downloads']['versions'][$version->getVersion()] = $this->get('packagist.download_manager')->getDownloads($package, $version);
+            } catch (ConnectionException $e) {
+                $data['downloads']['versions'][$version->getVersion()] = null;
+            }
+        }
+
+        $response = new Response(json_encode(array('package' => $data)), 200);
+        $response->setSharedMaxAge(3600);
+
+        return $response;
     }
 
     /**
@@ -631,6 +819,7 @@ class WebController extends Controller
 
         $update = $req->request->get('update', $req->query->get('update'));
         $autoUpdated = $req->request->get('autoUpdated', $req->query->get('autoUpdated'));
+        $updateEqualRefs = $req->request->get('updateAll', $req->query->get('updateAll'));
 
         $user = $this->getUser() ?: $doctrine
             ->getRepository('PackagistWebBundle:User')
@@ -658,7 +847,7 @@ class WebController extends Controller
                 $repository->setLoader($loader);
 
                 try {
-                    $updater->update($package, $repository, Updater::UPDATE_EQUAL_REFS);
+                    $updater->update($package, $repository, $updateEqualRefs ? Updater::UPDATE_EQUAL_REFS : 0);
                 } catch (\Exception $e) {
                     return new Response(json_encode(array(
                         'status' => 'error',
@@ -987,13 +1176,13 @@ class WebController extends Controller
             }
 
             try {
-                $downloads = $this->get('packagist.download_manager')->getDownloads($package);
+                $downloads = $this->get('packagist.download_manager')->getTotalDownloads($package);
             } catch (ConnectionException $e) {
                 return;
             }
 
             // more than 50 downloads = established package, do not allow deletion by maintainers
-            if ($downloads['total'] > 50) {
+            if ($downloads > 50) {
                 return;
             }
         }

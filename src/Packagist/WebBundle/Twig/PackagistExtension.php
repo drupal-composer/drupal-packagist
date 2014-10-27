@@ -19,7 +19,9 @@ class PackagistExtension extends \Twig_Extension
     public function getTests()
     {
         return array(
-            'existing_package' => new \Twig_Test_Method($this, 'packageExistsTest')
+            'existing_package' => new \Twig_Test_Method($this, 'packageExistsTest'),
+            'existing_provider' => new \Twig_Test_Method($this, 'providerExistsTest'),
+            'numeric' => new \Twig_Test_Method($this, 'numericTest'),
         );
     }
 
@@ -35,14 +37,27 @@ class PackagistExtension extends \Twig_Extension
         return 'packagist';
     }
 
+    public function numericTest($val)
+    {
+        return ctype_digit((string) $val);
+    }
+
     public function packageExistsTest($package)
     {
         if (!preg_match('/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/', $package)) {
             return false;
         }
 
-        return $this->doctrine->getRepository('PackagistWebBundle:Package')
-            ->packageExists($package);
+        $repo = $this->doctrine->getRepository('PackagistWebBundle:Package');
+
+        return $repo->packageExists($package);
+    }
+
+    public function providerExistsTest($package)
+    {
+        $repo = $this->doctrine->getRepository('PackagistWebBundle:Package');
+
+        return $repo->packageIsProvided($package);
     }
 
     public function prettifySourceReference($sourceReference)

@@ -126,6 +126,31 @@ class IndexPackagesCommand extends ContainerAwareCommand
                 } catch (\Exception $e) {
                     $output->writeln('<error>Exception: '.$e->getMessage().', skipping package '.$package->getName().'.</error>');
                 }
+
+                foreach ($package->getVersions() as $version) {
+                    // abort when a non-dev version shows up since dev ones are ordered first
+                    if (!$version->isDevelopment()) {
+                        break;
+                    }
+                    if (count($provide = $version->getProvide())) {
+                        foreach ($version->getProvide() as $provide) {
+                            try {
+                                $document = $update->createDocument();
+                                $document->setField('id', $provide->getPackageName());
+                                $document->setField('name', $provide->getPackageName());
+                                $document->setField('description', '');
+                                $document->setField('type', 'virtual-package');
+                                $document->setField('trendiness', 100);
+                                $document->setField('repository', '');
+                                $document->setField('abandoned', 0);
+                                $document->setField('replacementPackage', '');
+                                $update->addDocument($document);
+                            } catch (\Exception $e) {
+                                $output->writeln('<error>Exception: '.$e->getMessage().', skipping package '.$package->getName().':provide:'.$provide->getPackageName().'</error>');
+                            }
+                        }
+                    }
+                }
             }
 
             $doctrine->getManager()->flush();
@@ -146,6 +171,14 @@ class IndexPackagesCommand extends ContainerAwareCommand
         $document->setField('description', $package->getDescription());
         $document->setField('type', $package->getType());
         $document->setField('trendiness', $redis->zscore('downloads:trending', $package->getId()));
+        $document->setField('repository', $package->getRepository());
+        if ($package->isAbandoned()) {
+            $document->setField('abandoned', 1);
+            $document->setField('replacementPackage', $package->getReplacementPackage() ?: '');
+        } else {
+            $document->setField('abandoned', 0);
+            $document->setField('replacementPackage', '');
+        }
 
         $tags = array();
         foreach ($package->getVersions() as $version) {

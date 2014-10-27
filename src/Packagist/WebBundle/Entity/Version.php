@@ -268,6 +268,10 @@ class Version
             }
         }
 
+        if ($this->getPackage()->isAbandoned()) {
+            $data['abandoned'] = $this->getPackage()->getReplacementPackage() ?: true;
+        }
+
         return $data;
     }
 
@@ -389,7 +393,7 @@ class Version
      */
     public function getRequireVersion()
     {
-        return str_replace('.x-dev', '.*@dev', $this->getVersion());
+        return preg_replace('{^v(\d)}', '$1', str_replace('.x-dev', '.*@dev', $this->getVersion()));
     }
 
     /**
