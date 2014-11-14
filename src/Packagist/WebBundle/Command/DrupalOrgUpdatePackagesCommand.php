@@ -35,7 +35,7 @@ class DrupalOrgUpdatePackagesCommand extends ContainerAwareCommand
         $this->getApplication()->find('packagist:upsert')->run(
             new ArrayInput([
                 'command' => 'packagist:upsert',
-                'packages' => $update,
+                'packages' => array_keys($update),
                 '--repo-pattern' => 'http://git.drupal.org/project/%2$s'
             ]),
             $output
