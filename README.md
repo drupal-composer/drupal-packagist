@@ -37,6 +37,12 @@ never removing it. You could consider updating the `drupal/parse_composer`
 project to add an appropriate cleanup method to the Repository class there, or
 just sweep out the cache directory composer uses at the end of the cron job.
 
+Unfortunately, the rss feed references the projects by drupal module name, which
+is always snake_case, but the repo URL is case sensitive and therefore stupid
+project names with uppercase letters will cause things to break. The only
+obvious workaround would be to periodically run through the releases.tsv. In
+limited sampling, only useless modules had this problem.
+
 Package Repository Website for Composer, see the [about page](http://packagist.org/about) on [packagist.org](http://packagist.org/) for more.
 
 Requirements
