@@ -65,16 +65,33 @@ class ImportPackagesCommand extends ContainerAwareCommand
             Factory::createConfig()
         );
 
-        $composerPackages = $repository->getPackages();
+
+        $composerPackages = function ($repository) {
+            if ($repository->hasProviders()) {
+                foreach($repository->getProviderNames() as $packageName) {
+                    foreach($repository->findPackages($packageName) as $package) {
+                        yield $package;
+                    }
+                }
+            }
+            else {
+                foreach($repository->getPackages() as $package) {
+                    yield $package;
+                }
+            }
+        };
         $packagistPackages = array();
         $em = $doctrine->getManager();
-        foreach ($composerPackages as $composerPackage) {
-            $name = $composerPackage->getPrettyName();
+        foreach ($composerPackages($repository) as $composerPackage) {
+            // @todo move this into drupal/parse-composer
+            $name = strtolower($composerPackage->getPrettyName());
             if (!isset($packagistPackages[$name])) {
+                $io->write("Importing $name");
                 $package = new Package();
                 $package->setRepository($composerPackage->getSourceUrl());
                 $package->setName($name);
                 $packagistPackages[$name] = $package;
+                $io->write("Importing $name");
                 $em->persist($package);
             }
         }

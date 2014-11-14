@@ -24,7 +24,7 @@ class Upserter {
         $this->updater  = $updater;
     }
 
-    public function execute($url, $packageName)
+    public function execute($url, $packageName, BufferIO $output)
     {
         $config = Factory::createConfig();
         $packageRepository = $this->doctrine
@@ -47,13 +47,11 @@ class Upserter {
         $releases = $releaseInfoFactory
             ->getReleaseInfo($packageName, [7, 8]);
         if (empty($releases)) {
-            $output->write("no valid releases for {$packageName}");
-            return ConsumerInterface::MSG_REJECT;
+            $output->write($err = "no valid releases for {$packageName}");
+            throw new \Exception($err);
         }
         $package  = $packageRepository->getPackageByName($packageName);
         $loader   = new ValidatingArrayLoader(new ArrayLoader());
-        $output   = new BufferIO('');
-        $output->loadConfiguration($config);
         try {
             $repository = new VcsRepository(
                 array('url' => $package->getRepository()),
@@ -87,13 +85,7 @@ class Upserter {
                     true
                 ).' ['.get_class($e).']: '.$e->getMessage().' at '
                 .$e->getFile().':'.$e->getLine().'</error>');
-            echo $output->getOutput();
-            return ConsumerInterface::MSG_REJECT;
+            throw $e;
         }
-        $response = serialize(array(
-            'output' => $output->getOutput()
-        ));
-        echo $output->getOutput();
-        return $response;
     }
 }

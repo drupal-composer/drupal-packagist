@@ -1,5 +1,41 @@
-Packagist
+(Drupal) Packagist
 =========
+
+This is a hacked up fork of packagist for use with Drupal. The forking and
+hacking was done for want of a fast way to experiment with the problem domain
+while developing the Drupal-specific functionality separately.
+
+All things considered, it would be best to provide separate repositories for the
+following:
+
+* The Packagist/WebBundle by itself
+* HA functionality -- mostly the queueing used to bootstrap by traversing all
+  the drupal.org project repos with worker nodes
+* Drupal-specific applications for the above
+* Drupal CLI tools for parsing update and release info as a thing unto itself
+
+Instead, we have added the queuing and Drupal-specific functionality in place.
+The main workflow so far has been to install the application as normal and then
+populate the database so that you can generate a composer repository like so:
+
+```
+./app/console packagist:bulk_add --repo-pattern \
+'http://git.drupal.org/project/%2$s' --vendor drupal $(curl \
+https://drupal.org/files/releases.tsv | grep 7.x | awk '{ print $3 }' | sort | uniq -)
+```
+
+Running 10 AWS c3.large instances to consume the queue filled by the
+`packagist:bulk_add` command allows the process to complete in a few hours.
+
+Experimental support for automatic updates has been added in the form of
+a foreground package upsert command that gets invoked by the
+`packagist:drupal_org_update` command, which parses the drupal 7 new releases
+rss feed. You would need to invoke this command with cron or similar to keep the
+application up to date with drupal.org and you would need to monitor disk space
+since the package information is read by cloning a bare repo from drupal.org and
+never removing it. You could consider updating the `drupal/parse_composer`
+project to add an appropriate cleanup method to the Repository class there, or
+just sweep out the cache directory composer uses at the end of the cron job.
 
 Package Repository Website for Composer, see the [about page](http://packagist.org/about) on [packagist.org](http://packagist.org/) for more.
 
