@@ -12,6 +12,7 @@ use Composer\Repository\VcsRepository;
 use Composer\IO\BufferIO;
 use Composer\IO\ConsoleIO;
 use FastFeed\Factory;
+use Symfony\Component\Console\Input\ArrayInput;
 
 class DrupalOrgUpdatePackagesCommand extends ContainerAwareCommand
 {
