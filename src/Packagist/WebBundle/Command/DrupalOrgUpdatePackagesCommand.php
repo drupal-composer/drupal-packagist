@@ -11,6 +11,7 @@ use Packagist\WebBundle\Entity\Package;
 use Composer\Repository\VcsRepository;
 use Composer\IO\BufferIO;
 use Composer\IO\ConsoleIO;
+use FastFeed\Factory;
 
 class DrupalOrgUpdatePackagesCommand extends ContainerAwareCommand
 {

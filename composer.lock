@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "8d23b0c1b0517c251c5a53e0321ebc49",
+    "hash": "364ef429ef0693b7cb3288d4b3add61c",
     "packages": [
         {
             "name": "composer/composer",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/composer.git",
-                "reference": "a309e1d89ded6919935a842faeaed8e888fbfe37"
+                "reference": "1e27ff5e22df81e3cd0cd36e5fdd4a3c5a031f4a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/a309e1d89ded6919935a842faeaed8e888fbfe37",
-                "reference": "a309e1d89ded6919935a842faeaed8e888fbfe37",
+                "url": "https://api.github.com/repos/composer/composer/zipball/1e27ff5e22df81e3cd0cd36e5fdd4a3c5a031f4a",
+                "reference": "1e27ff5e22df81e3cd0cd36e5fdd4a3c5a031f4a",
                 "shasum": ""
             },
             "require": {
@@ -72,7 +72,59 @@
                 "dependency",
                 "package"
             ],
-            "time": "2014-10-20 19:16:14"
+            "time": "2014-08-11 15:46:48"
+        },
+        {
+            "name": "desarrolla2/cache",
+            "version": "v1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/desarrolla2/Cache.git",
+                "reference": "a4fe5e0015b497099613e9cf80f37e445de077a2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/desarrolla2/Cache/zipball/a4fe5e0015b497099613e9cf80f37e445de077a2",
+                "reference": "a4fe5e0015b497099613e9cf80f37e445de077a2",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "predis/predis": "*",
+                "raulfraile/ladybug": "v0.7",
+                "symfony/yaml": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Desarrolla2\\Cache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel González",
+                    "homepage": "http://desarrolla2.com/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Provides an cache interface for several adapters (Apc, File, Mongo, Memcached, Mysql, ... )",
+            "homepage": "https://github.com/desarrolla2/Cache/blob/master/README.md",
+            "keywords": [
+                "apc",
+                "cache",
+                "file",
+                "memcached",
+                "mongo",
+                "mysql",
+                "redis"
+            ],
+            "time": "2014-11-06 11:33:50"
         },
         {
             "name": "doctrine/annotations",
@@ -673,12 +725,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/migrations.git",
-                "reference": "1a9dffa64e33fdc10f4b4c3f5d7230b74d4a1021"
+                "reference": "f4fe9d9cc21a711d89d91d29c4a4e7945289cdd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/1a9dffa64e33fdc10f4b4c3f5d7230b74d4a1021",
-                "reference": "1a9dffa64e33fdc10f4b4c3f5d7230b74d4a1021",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/f4fe9d9cc21a711d89d91d29c4a4e7945289cdd0",
+                "reference": "f4fe9d9cc21a711d89d91d29c4a4e7945289cdd0",
                 "shasum": ""
             },
             "require": {
@@ -723,7 +775,7 @@
                 "database",
                 "migrations"
             ],
-            "time": "2014-08-18 18:03:07"
+            "time": "2014-10-30 14:49:25"
         },
         {
             "name": "doctrine/orm",
@@ -815,7 +867,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/winmillwill/drupal-parse-composer",
-                "reference": "58ebd43f71f1f23bb96052fa0f95e2d6cfc09273"
+                "reference": "9a190c381f5de8eb845f36a9c8e33edbfd6089d0"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -843,7 +895,139 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2014-10-25 19:00:21"
+            "time": "2014-08-17 17:49:36"
+        },
+        {
+            "name": "ezyang/htmlpurifier",
+            "version": "v4.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ezyang/htmlpurifier.git",
+                "reference": "6f389f0f25b90d0b495308efcfa073981177f0fd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/6f389f0f25b90d0b495308efcfa073981177f0fd",
+                "reference": "6f389f0f25b90d0b495308efcfa073981177f0fd",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "HTMLPurifier": "library/"
+                },
+                "files": [
+                    "library/HTMLPurifier.composer.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Edward Z. Yang",
+                    "email": "admin@htmlpurifier.org",
+                    "homepage": "http://ezyang.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Standards compliant HTML filter written in PHP",
+            "homepage": "http://htmlpurifier.org/",
+            "keywords": [
+                "html"
+            ],
+            "time": "2013-11-30 08:25:19"
+        },
+        {
+            "name": "fastfeed/fastfeed",
+            "version": "v0.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FastFeed/FastFeed.git",
+                "reference": "057997d2d419a1d5eb2caf424dbb951b9e7d56b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FastFeed/FastFeed/zipball/057997d2d419a1d5eb2caf424dbb951b9e7d56b8",
+                "reference": "057997d2d419a1d5eb2caf424dbb951b9e7d56b8",
+                "shasum": ""
+            },
+            "require": {
+                "desarrolla2/cache": ">=1.0.0",
+                "ezyang/htmlpurifier": "4.6.*",
+                "fastfeed/url": ">=0.1.0",
+                "guzzle/guzzle": "~3.7",
+                "php": ">=5.3.0",
+                "psr/log": "~1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "FastFeed\\": "src/",
+                    "FastFeed\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel González",
+                    "homepage": "http://desarrolla2.com/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A simple to use Feed Client Library.",
+            "keywords": [
+                "atom",
+                "atom10",
+                "feed",
+                "feed parser",
+                "rss",
+                "rss20"
+            ],
+            "time": "2014-07-09 10:55:15"
+        },
+        {
+            "name": "fastfeed/url",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FastFeed/Url.git",
+                "reference": "25f21529c2261557a9eabedec8d0bcfb18b5449b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FastFeed/Url/zipball/25f21529c2261557a9eabedec8d0bcfb18b5449b",
+                "reference": "25f21529c2261557a9eabedec8d0bcfb18b5449b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "FastFeed\\Url\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniel González Cerviño",
+                    "email": "daniel@desarrolla2.com"
+                }
+            ],
+            "description": "Simple Library to manage Urls",
+            "time": "2014-02-25 15:36:50"
         },
         {
             "name": "friendsofsymfony/user-bundle",
@@ -1011,24 +1195,23 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/hwi/HWIOAuthBundle.git",
-                "reference": "835ab5eb2f8bd783a11980e8cbab549ee01aa720"
+                "reference": "4c9e19a203a571b9bd459843512afd1d2cd6375a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/835ab5eb2f8bd783a11980e8cbab549ee01aa720",
-                "reference": "835ab5eb2f8bd783a11980e8cbab549ee01aa720",
+                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/4c9e19a203a571b9bd459843512afd1d2cd6375a",
+                "reference": "4c9e19a203a571b9bd459843512afd1d2cd6375a",
                 "shasum": ""
             },
             "require": {
                 "kriswallsmith/buzz": "~0.7",
                 "php": ">=5.3.3",
-                "symfony/framework-bundle": "~2.3",
+                "symfony/framework-bundle": "~2.1",
                 "symfony/options-resolver": "~2.1",
-                "symfony/security-bundle": "~2.1",
-                "symfony/yaml": "~2.3"
+                "symfony/security-bundle": "~2.1"
             },
             "require-dev": {
-                "doctrine/orm": "~2.3",
+                "doctrine/orm": "~2.2",
                 "symfony/twig-bundle": "~2.1",
                 "symfony/validator": "~2.1"
             },
@@ -1045,7 +1228,7 @@
             },
             "autoload": {
                 "psr-0": {
-                    "HWI\\Bundle\\OAuthBundle\\": ""
+                    "HWI\\Bundle\\OAuthBundle": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1054,20 +1237,22 @@
             ],
             "authors": [
                 {
+                    "name": "Geoffrey Bachelet",
+                    "email": "geoffrey.bachelet@gmail.com",
+                    "homepage": "https://github.com/ubermuda"
+                },
+                {
                     "name": "Contributors",
                     "homepage": "https://github.com/hwi/HWIOAuthBundle/contributors"
                 },
                 {
+                    "name": "Alexander",
+                    "email": "iam.asm89@gmail.com",
+                    "homepage": "http://asm89.github.io/"
+                },
+                {
                     "name": "Joseph Bielawski",
                     "email": "stloyd@gmail.com"
-                },
-                {
-                    "name": "Alexander",
-                    "email": "iam.asm89@gmail.com"
-                },
-                {
-                    "name": "Geoffrey Bachelet",
-                    "email": "geoffrey.bachelet@gmail.com"
                 }
             ],
             "description": "Support for authenticating users using both OAuth1.0a and OAuth2 in Symfony2.",
@@ -1090,7 +1275,6 @@
                 "foursquare",
                 "github",
                 "google",
-                "hubic",
                 "instagram",
                 "jira",
                 "linkedin",
@@ -1115,7 +1299,7 @@
                 "yahoo",
                 "yandex"
             ],
-            "time": "2014-07-30 11:47:22"
+            "time": "2013-12-09 13:36:26"
         },
         {
             "name": "jdorn/sql-formatter",
@@ -2297,17 +2481,17 @@
         },
         {
             "name": "snc/redis-bundle",
-            "version": "1.1.x-dev",
+            "version": "dev-master",
             "target-dir": "Snc/RedisBundle",
             "source": {
                 "type": "git",
                 "url": "https://github.com/snc/SncRedisBundle.git",
-                "reference": "732bfa62ea1e30dbbda12486f971573274d3b48f"
+                "reference": "dc7aaaaa7f1e9d1c8edad62657efa4ac18088ae3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/snc/SncRedisBundle/zipball/732bfa62ea1e30dbbda12486f971573274d3b48f",
-                "reference": "732bfa62ea1e30dbbda12486f971573274d3b48f",
+                "url": "https://api.github.com/repos/snc/SncRedisBundle/zipball/dc7aaaaa7f1e9d1c8edad62657efa4ac18088ae3",
+                "reference": "dc7aaaaa7f1e9d1c8edad62657efa4ac18088ae3",
                 "shasum": ""
             },
             "require": {
@@ -2326,6 +2510,11 @@
                 "symfony/console": "If you want to use commands to interact with the redis database"
             },
             "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
             "autoload": {
                 "psr-0": {
                     "Snc\\RedisBundle": ""
@@ -2352,7 +2541,7 @@
                 "redis",
                 "symfony"
             ],
-            "time": "2014-08-09 09:54:28"
+            "time": "2013-11-24 12:43:35"
         },
         {
             "name": "solarium/solarium",
@@ -2739,12 +2928,12 @@
             "version": "v1.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fabpot/Twig-extensions.git",
+                "url": "https://github.com/twigphp/Twig-extensions.git",
                 "reference": "c0ab818595338dd5569369bfce2552d02cec5d50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Twig-extensions/zipball/c0ab818595338dd5569369bfce2552d02cec5d50",
+                "url": "https://api.github.com/repos/twigphp/Twig-extensions/zipball/c0ab818595338dd5569369bfce2552d02cec5d50",
                 "reference": "c0ab818595338dd5569369bfce2552d02cec5d50",
                 "shasum": ""
             },
@@ -2769,9 +2958,7 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com",
-                    "homepage": "http://fabien.potencier.org",
-                    "role": "Lead Developer"
+                    "email": "fabien@symfony.com"
                 }
             ],
             "description": "Common additional features for Twig that do not directly belong in core",
@@ -2787,12 +2974,12 @@
             "version": "v1.16.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/fabpot/Twig.git",
+                "url": "https://github.com/twigphp/Twig.git",
                 "reference": "42f758d9fe2146d1f0470604fc05ee43580873fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fabpot/Twig/zipball/42f758d9fe2146d1f0470604fc05ee43580873fc",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/42f758d9fe2146d1f0470604fc05ee43580873fc",
                 "reference": "42f758d9fe2146d1f0470604fc05ee43580873fc",
                 "shasum": ""
             },

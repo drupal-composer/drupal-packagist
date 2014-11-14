@@ -57,7 +57,8 @@
         "drupal/parse-composer": "dev-master@dev",
         "oldsound/rabbitmq-bundle": "1.4.*",
         "kriswallsmith/assetic": "~1.2@alpha",
-        "pagerfanta/pagerfanta": "~1.0"
+        "pagerfanta/pagerfanta": "~1.0",
+        "fastfeed/fastfeed": "~0.3"
     },
     "scripts": {
         "post-install-cmd": [

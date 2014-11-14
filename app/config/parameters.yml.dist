@@ -77,4 +77,4 @@ old_sound_rabbit_mq:
             exchange_options:
                 type: direct
                 name: add-packages
-            callback: packagist.background_package_upserter
+            callback: packagist.background_package_upsert_consumer
