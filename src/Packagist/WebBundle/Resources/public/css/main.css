@@ -178,14 +178,19 @@ footer li {
   margin: 0;
   padding: 2px;
 }
-footer a, footer a:visited {
+footer ul a, footer ul a:visited {
   color: #ddd;
   padding-left: 11px;
   background: url("../img/footer_arrows.png") 0 2px no-repeat;
 }
-footer a:hover {
+footer ul a:hover {
   color: #fff;
   background-position: 0 -18px;
+}
+footer p {
+  float: left;
+  margin-left: 90px;
+  color: #ccc;
 }
 
 .flash-message {
@@ -324,13 +329,25 @@ ul.packages h1 {
   margin: 0;
   padding: 8px 4px 0 0;
   height: 32px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-ul.packages h1 .metadata {
+ul.packages .metadata {
   float: right;
   color: #555;
   font-size: 18px;
   margin-right: 10px;
+  padding-top: 8px;
+}
+
+ul.packages .abandoned {
+  float: right;
+  color: #800;
+  font-size: 12px;
+  margin-right: 10px;
+  margin-top: 5px;
 }
 
 ul.packages li {
@@ -650,6 +667,14 @@ form ul {
   background: -o-linear-gradient(top, #a61c1c 0%, #b84949 100%);
   background: -ms-linear-gradient(top, #a61c1c 0%, #b84949 100%);
   background: linear-gradient(top, #a61c1c 0%, #b84949 100%);
+}
+.package .action.abandon input, .package .action.un-abandon input {
+  background: #ec400b;
+  background: -moz-linear-gradient(top, #ec400b 0%, #f5813f 100%);
+  background: -webkit-linear-gradient(top, #ec400b 0%, #f5813f 100%);
+  background: -o-linear-gradient(top, #ec400b 0%, #f5813f 100%);
+  background: -ms-linear-gradient(top, #ec400b 0%, #f5813f 100%);
+  background: linear-gradient(top, #ec400b 0%, #f5813f 100%);
 }
 .package .action.delete-version {
   float: none;

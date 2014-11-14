@@ -23,8 +23,9 @@ parameters:
     google_analytics:
         ga_key:
 
-    github.client_id: foo
-    github.client_secret: bar
+    # set those to values obtained by creating an application at https://github.com/settings/applications
+    github.client_id:
+    github.client_secret:
 
         # -- performance features --
         # set both to apc to optimize things if it is available

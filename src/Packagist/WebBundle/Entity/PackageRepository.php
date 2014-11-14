@@ -27,14 +27,33 @@ class PackageRepository extends EntityRepository
      */
     private $packageNames;
 
+    /**
+     * Lists all provided names array(name => true)
+     *
+     * @var array
+     */
+    private $providedNames;
+
     public function packageExists($name)
     {
-        $packages = $this->getPackageNames();
+        $packages = $this->getRawPackageNames();
 
         return isset($packages[$name]) || in_array(strtolower($name), $packages, true);
     }
 
-    public function getPackageNames()
+    public function packageIsProvided($name)
+    {
+        $packages = $this->getProvidedNames();
+
+        return isset($packages[$name]) || in_array(strtolower($name), $packages, true);
+    }
+
+    public function getPackageNames($fields = array())
+    {
+        return array_keys($this->getRawPackageNames());
+    }
+
+    public function getRawPackageNames()
     {
         if (null !== $this->packageNames) {
             return $this->packageNames;
@@ -62,6 +81,49 @@ class PackageRepository extends EntityRepository
         return $this->packageNames = $names;
     }
 
+    public function getProvidedNames()
+    {
+        if (null !== $this->providedNames) {
+            return $this->providedNames;
+        }
+
+        $names = null;
+        $apc = extension_loaded('apc');
+
+        // TODO use container to set caching key and ttl
+        if ($apc) {
+            $names = apc_fetch('packagist_provided_names');
+        }
+
+        if (!is_array($names)) {
+            $query = $this->getEntityManager()
+                ->createQuery("SELECT p.packageName AS name FROM Packagist\WebBundle\Entity\ProvideLink p GROUP BY p.packageName");
+
+            $names = $this->getPackageNamesForQuery($query);
+            $names = array_combine($names, array_map('strtolower', $names));
+            if ($apc) {
+                apc_store('packagist_provided_names', $names, 3600);
+            }
+        }
+
+        return $this->providedNames = $names;
+    }
+
+    public function findProviders($name)
+    {
+        $query = $this->createQueryBuilder('p')
+            ->select('p')
+            ->leftJoin('p.versions', 'pv')
+            ->leftJoin('pv.provide', 'pr')
+            ->where('pv.development = true')
+            ->andWhere('pr.packageName = :name')
+            ->groupBy('p.name')
+            ->getQuery()
+            ->setParameters(array('name' => $name));
+
+        return $query->getResult();
+    }
+
     public function getPackageNamesByType($type)
     {
         $query = $this->getEntityManager()
@@ -78,6 +140,33 @@ class PackageRepository extends EntityRepository
             ->setParameters(array('vendor' => $vendor.'/%'));
 
         return $this->getPackageNamesForQuery($query);
+    }
+
+    public function getPackagesWithFields($filters, $fields)
+    {
+        $selector = '';
+        foreach ($fields as $field) {
+            $selector .= ', p.'.$field;
+        }
+        $where = '';
+        foreach ($filters as $filter => $val) {
+            $where .= 'p.'.$filter.' = :'.$filter;
+        }
+        if ($where) {
+            $where = 'WHERE '.$where;
+        }
+        $query = $this->getEntityManager()
+            ->createQuery("SELECT p.name $selector  FROM Packagist\WebBundle\Entity\Package p $where")
+            ->setParameters($filters);
+
+        $result = array();
+        foreach ($query->getScalarResult() as $row) {
+            $name = $row['name'];
+            unset($row['name']);
+            $result[$name] = $row;
+        }
+
+        return $result;
     }
 
     private function getPackageNamesForQuery($query)

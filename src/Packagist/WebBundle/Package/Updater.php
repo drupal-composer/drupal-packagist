@@ -111,12 +111,21 @@ class Updater
             if ($bVersion === '9999999-dev' || 'dev-' === substr($bVersion, 0, 4)) {
                 $bVersion = 'dev';
             }
+            $aIsDev = $aVersion === 'dev' || substr($aVersion, -4) === '-dev';
+            $bIsDev = $bVersion === 'dev' || substr($bVersion, -4) === '-dev';
 
+            // push dev versions to the end
+            if ($aIsDev !== $bIsDev) {
+                return $aIsDev ? 1 : -1;
+            }
+
+            // equal versions are sorted by date
             if ($aVersion === $bVersion) {
                 return $a->getReleaseDate() > $b->getReleaseDate() ? 1 : -1;
             }
 
-            return version_compare($a->getVersion(), $b->getVersion());
+            // the rest is sorted by version
+            return version_compare($aVersion, $bVersion);
         });
 
         $versionRepository = $this->doctrine->getRepository('PackagistWebBundle:Version');
@@ -130,6 +139,7 @@ class Updater
             $em->refresh($package);
         }
 
+        $lastUpdated = true;
         foreach ($versions as $version) {
             if ($version instanceof AliasPackage) {
                 continue;
@@ -139,7 +149,13 @@ class Updater
                 continue;
             }
 
-            $this->updateInformation($package, $version, $flags);
+            $lastUpdated = $this->updateInformation($package, $version, $flags);
+            if ($lastUpdated) {
+                $em->flush();
+            }
+        }
+
+        if (!$lastUpdated) {
             $em->flush();
         }
 
@@ -162,20 +178,17 @@ class Updater
 
         $normVersion = $data->getVersion();
 
-        // check if we have that version yet
-        foreach ($package->getVersions() as $existingVersion) {
-            if (strtolower($existingVersion->getNormalizedVersion()) === strtolower($normVersion)) {
-                $source = $existingVersion->getSource();
-                // update if the right flag is set, or it's a dev version, or the source reference has changed in a tagged release (re-tag)
-                if ($existingVersion->getDevelopment() || $source['reference'] !== $data->getSourceReference() || ($flags & self::UPDATE_EQUAL_REFS)) {
-                    $version = $existingVersion;
-                    break;
-                }
-
+        $existingVersion = $package->getVersion($normVersion);
+        if ($existingVersion) {
+            $source = $existingVersion->getSource();
+            // update if the right flag is set, or the source reference has changed (re-tag or new commit on branch)
+            if ($source['reference'] !== $data->getSourceReference() || ($flags & self::UPDATE_EQUAL_REFS)) {
+                $version = $existingVersion;
+            } else {
                 // mark it updated to avoid it being pruned
                 $existingVersion->setUpdatedAt(new \DateTime);
 
-                return;
+                return false;
             }
         }
 
@@ -248,25 +261,29 @@ class Updater
         if ($data->getAuthors()) {
             foreach ($data->getAuthors() as $authorData) {
                 $author = null;
+
+                foreach (array('email', 'name', 'homepage', 'role') as $field) {
+                    if (isset($authorData[$field])) {
+                        $authorData[$field] = trim($authorData[$field]);
+                        if ('' === $authorData[$field]) {
+                            $authorData[$field] = null;
+                        }
+                    } else {
+                        $authorData[$field] = null;
+                    }
+                }
+
                 // skip authors with no information
-                if (empty($authorData['email']) && empty($authorData['name'])) {
+                if (!isset($authorData['email']) && !isset($authorData['name'])) {
                     continue;
                 }
 
-                if (!empty($authorData['email'])) {
-                    $author = $authorRepository->findOneByEmail($authorData['email']);
-                }
-
-                if (!$author && !empty($authorData['homepage'])) {
-                    $author = $authorRepository->findOneBy(array(
-                        'name' => $authorData['name'],
-                        'homepage' => $authorData['homepage']
-                    ));
-                }
-
-                if (!$author && !empty($authorData['name'])) {
-                    $author = $authorRepository->findOneByNameAndPackage($authorData['name'], $package);
-                }
+                $author = $authorRepository->findOneBy(array(
+                    'email' => $authorData['email'],
+                    'name' => $authorData['name'],
+                    'homepage' => $authorData['homepage'],
+                    'role' => $authorData['role'],
+                ));
 
                 if (!$author) {
                     $author = new Author();
@@ -361,5 +378,7 @@ class Updater
         if (!$package->getVersions()->contains($version)) {
             $package->addVersions($version);
         }
+
+        return true;
     }
 }

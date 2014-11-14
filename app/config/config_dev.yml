@@ -1,6 +1,5 @@
 imports:
     - { resource: config.yml }
-    - { resource: twig_dev.yml }
 
 framework:
     router:   { resource: "%kernel.root_dir%/config/routing_dev.yml" }
@@ -19,6 +18,10 @@ monolog:
         firephp:
             type:  firephp
             level: info
+
+hwi_oauth:
+    http_client:
+        verify_peer: false
 
 #assetic:
 #    use_controller: true

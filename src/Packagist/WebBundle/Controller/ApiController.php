@@ -14,7 +14,7 @@ namespace Packagist\WebBundle\Controller;
 
 use Composer\IO\BufferIO;
 use Composer\Factory;
-use Drupal\ParseComposer\Repository as DrupalRepository;
+use Composer\Repository\VcsRepository;
 use Composer\Repository\InvalidRepositoryException;
 use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Package\Loader\ArrayLoader;
@@ -81,47 +81,39 @@ class ApiController extends Controller
         unset($versions, $package, $packages);
 
         $response = new Response(json_encode($data), 200);
-        /* $response = new Response(str_replace('\\/', '/', json_encode($data)), 200); */
         $response->setSharedMaxAge(120);
         return $response;
     }
 
     /**
+     * @Route("/api/update-package", name="generic_postreceive", defaults={"_format" = "json"})
      * @Route("/api/github", name="github_postreceive", defaults={"_format" = "json"})
-     * @Method({"POST"})
-     */
-    public function githubPostReceive(Request $request)
-    {
-        // parse the GitHub payload
-        $payload = json_decode($request->request->get('payload'), true);
-
-        if (!$payload || !isset($payload['repository']['url'])) {
-            return new Response(json_encode(array('status' => 'error', 'message' => 'Missing or invalid payload',)), 406);
-        }
-
-        $urlRegex = '{^(?:https?://|git://|git@)?(?P<host>github\.com)[:/](?P<path>[\w.-]+/[\w.-]+?)(?:\.git)?$}';
-        $repoUrl = $payload['repository']['url'];
-
-        return $this->receivePost($request, $repoUrl, $urlRegex);
-    }
-
-    /**
      * @Route("/api/bitbucket", name="bitbucket_postreceive", defaults={"_format" = "json"})
      * @Method({"POST"})
      */
-    public function bitbucketPostReceive(Request $request)
+    public function updatePackageAction(Request $request)
     {
-        // decode Bitbucket's POST payload
+        // parse the payload
         $payload = json_decode($request->request->get('payload'), true);
-
-        if (!$payload || !isset($payload['canon_url']) || !isset($payload['repository']['absolute_url'])) {
-            return new Response(json_encode(array('status' => 'error', 'message' => 'Missing or invalid payload',)), 406);
+        if (!$payload && $request->headers->get('Content-Type') === 'application/json') {
+            $payload = json_decode($request->getContent(), true);
         }
 
-        $urlRegex = '{^(?:https?://|git://|git@)?(?P<host>bitbucket\.org)[/:](?P<path>[\w.-]+/[\w.-]+?)(\.git)?/?$}';
-        $repoUrl = $payload['canon_url'].$payload['repository']['absolute_url'];
+        if (!$payload) {
+            return new JsonResponse(array('status' => 'error', 'message' => 'Missing payload parameter'), 406);
+        }
 
-        return $this->receivePost($request, $repoUrl, $urlRegex);
+        if (isset($payload['repository']['url'])) { // github/gitlab/anything hook
+            $urlRegex = '{^(?:https?://|git://|git@)?(?P<host>[a-z0-9.-]+)[:/](?P<path>[\w.-]+/[\w.-]+?)(?:\.git)?$}i';
+            $url = $payload['repository']['url'];
+        } elseif (isset($payload['canon_url']) && isset($payload['repository']['absolute_url'])) { // bitbucket hook
+            $urlRegex = '{^(?:https?://|git://|git@)?(?P<host>bitbucket\.org)[/:](?P<path>[\w.-]+/[\w.-]+?)(\.git)?/?$}i';
+            $url = $payload['canon_url'].$payload['repository']['absolute_url'];
+        } else {
+            return new JsonResponse(array('status' => 'error', 'message' => 'Missing or invalid payload'), 406);
+        }
+
+        return $this->receivePost($request, $url, $urlRegex);
     }
 
     /**
@@ -233,9 +225,9 @@ class ApiController extends Controller
         }
 
         // try to find the user package
-        $package = $this->findPackageByUrl($user, $url, $urlRegex);
+        $packages = $this->findPackagesByUrl($user, $url, $urlRegex);
 
-        if (!$package) {
+        if (!$packages) {
             return new Response(json_encode(array('status' => 'error', 'message' => 'Could not find a package that matches this request (does user maintain the package?)')), 404);
         }
 
@@ -248,23 +240,25 @@ class ApiController extends Controller
         $io = new BufferIO('', OutputInterface::VERBOSITY_VERBOSE);
 
         try {
-            $em->transactional(function($em) use ($package, $updater, $io) {
-                // prepare dependencies
-                $config = Factory::createConfig();
-                $io->loadConfiguration($config);
-                $loader = new ValidatingArrayLoader(new ArrayLoader());
+            foreach ($packages as $package) {
+                $em->transactional(function($em) use ($package, $updater, $io) {
+                    // prepare dependencies
+                    $config = Factory::createConfig();
+                    $io->loadConfiguration($config);
+                    $loader = new ValidatingArrayLoader(new ArrayLoader());
 
-                // prepare repository
-                $repository = new DrupalRepository(array('url' => $package->getRepository()), $io, $config);
-                $repository->setLoader($loader);
+                    // prepare repository
+                    $repository = new VcsRepository(array('url' => $package->getRepository()), $io, $config);
+                    $repository->setLoader($loader);
 
-                // perform the actual update (fetch and re-scan the repository's source)
-                $updater->update($package, $repository);
+                    // perform the actual update (fetch and re-scan the repository's source)
+                    $updater->update($package, $repository);
 
-                // update the package entity
-                $package->setAutoUpdated(true);
-                $em->flush();
-            });
+                    // update the package entity
+                    $package->setAutoUpdated(true);
+                    $em->flush();
+                });
+            }
         } catch (\Exception $e) {
             if ($e instanceof InvalidRepositoryException) {
                 $this->get('packagist.package_manager')->notifyUpdateFailure($package, $e, $io->getOutput());
@@ -308,23 +302,24 @@ class ApiController extends Controller
      * @param User $user
      * @param string $url
      * @param string $urlRegex
-     * @return Package|null the found package or null otherwise
+     * @return array the packages found
      */
-    protected function findPackageByUrl(User $user, $url, $urlRegex)
+    protected function findPackagesByUrl(User $user, $url, $urlRegex)
     {
         if (!preg_match($urlRegex, $url, $matched)) {
-            return null;
+            return array();
         }
 
+        $packages = array();
         foreach ($user->getPackages() as $package) {
             if (preg_match($urlRegex, $package->getRepository(), $candidate)
                 && $candidate['host'] === $matched['host']
                 && $candidate['path'] === $matched['path']
             ) {
-                return $package;
+                $packages[] = $package;
             }
         }
 
-        return null;
+        return $packages;
     }
 }

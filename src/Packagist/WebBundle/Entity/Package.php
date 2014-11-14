@@ -14,12 +14,13 @@ namespace Packagist\WebBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ExecutionContext;
+use Symfony\Component\Validator\ExecutionContextInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Composer\IO\NullIO;
 use Composer\Factory;
 use Drupal\ParseComposer\Repository as DrupalRepository;
 use Composer\Repository\RepositoryManager;
+use Composer\Repository\Vcs\GitHubDriver;
 
 /**
  * @ORM\Entity(repositoryClass="Packagist\WebBundle\Entity\PackageRepository")
@@ -112,6 +113,18 @@ class Package
     private $autoUpdated = false;
 
     /**
+     * @var bool
+     * @ORM\Column(type="boolean")
+     */
+    private $abandoned = false;
+
+    /**
+     * @var string
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $replacementPackage;
+
+    /**
      * @ORM\Column(type="boolean", options={"default"=false})
      */
     private $updateFailureNotified = false;
@@ -124,6 +137,11 @@ class Package
      */
     private $vcsDriver = true;
     private $vcsDriverError;
+
+    /**
+     * @var array lookup table for versions
+     */
+    private $cachedVersions;
 
     public function __construct()
     {
@@ -150,12 +168,17 @@ class Package
             'maintainers' => $maintainers,
             'versions' => $versions,
             'type' => $this->getType(),
-            'repository' => $this->getRepository()
+            'repository' => $this->getRepository(),
         );
+
+        if ($this->isAbandoned()) {
+            $data['abandoned'] = $this->getReplacementPackage() ?: true;
+        }
+
         return $data;
     }
 
-    public function isRepositoryValid(ExecutionContext $context)
+    public function isRepositoryValid(ExecutionContextInterface $context)
     {
         // vcs driver was not nulled which means the repository was not set/modified and is still valid
         if (true === $this->vcsDriver && null !== $this->getName()) {
@@ -217,7 +240,7 @@ class Package
         $this->router = $router;
     }
 
-    public function isPackageUnique(ExecutionContext $context)
+    public function isPackageUnique(ExecutionContextInterface $context)
     {
         try {
             if ($this->entityRepository->findOneByName($this->name)) {
@@ -354,6 +377,9 @@ class Package
             if (null === $this->getName()) {
                 $this->setName($information['name']);
             }
+            if ($driver instanceof GitHubDriver) {
+                $this->repository = $driver->getRepositoryUrl();
+            }
         } catch (\Exception $e) {
             $this->vcsDriverError = '['.get_class($e).'] '.$e->getMessage();
         }
@@ -387,6 +413,20 @@ class Package
     public function getVersions()
     {
         return $this->versions;
+    }
+
+    public function getVersion($normalizedVersion)
+    {
+        if (null === $this->cachedVersions) {
+            $this->cachedVersions = array();
+            foreach ($this->getVersions() as $version) {
+                $this->cachedVersions[strtolower($version->getNormalizedVersion())] = $version;
+            }
+        }
+
+        if (isset($this->cachedVersions[strtolower($normalizedVersion)])) {
+            return $this->cachedVersions[strtolower($normalizedVersion)];
+        }
     }
 
     /**
@@ -548,5 +588,37 @@ class Package
     public function isUpdateFailureNotified()
     {
         return $this->updateFailureNotified;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isAbandoned()
+    {
+        return $this->abandoned;
+    }
+
+    /**
+     * @param boolean $abandoned
+     */
+    public function setAbandoned($abandoned)
+    {
+        $this->abandoned = $abandoned;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReplacementPackage()
+    {
+        return $this->replacementPackage;
+    }
+
+    /**
+     * @param string $replacementPackage
+     */
+    public function setReplacementPackage($replacementPackage)
+    {
+        $this->replacementPackage = $replacementPackage;
     }
 }
