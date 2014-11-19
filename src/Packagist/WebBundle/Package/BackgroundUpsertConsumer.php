@@ -28,7 +28,7 @@ class BackgroundUpsertConsumer implements ConsumerInterface {
         $output->loadConfiguration($config);
         $response = false;
         try {
-            $upserter->execute($body['url'], $body['package_name'], $output);
+            $this->upserter->execute($body['url'], $body['package_name'], $output);
         }
         catch (\Exception $e) {
             echo $output->getOutput();
