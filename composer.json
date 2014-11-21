@@ -58,7 +58,8 @@
         "oldsound/rabbitmq-bundle": "1.4.*",
         "kriswallsmith/assetic": "~1.2@alpha",
         "pagerfanta/pagerfanta": "~1.0",
-        "fastfeed/fastfeed": "~0.3"
+        "fastfeed/fastfeed": "~0.3",
+        "symfony/dom-crawler": "2.5.*"
     },
     "scripts": {
         "post-install-cmd": [
