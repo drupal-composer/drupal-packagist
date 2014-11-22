@@ -190,7 +190,7 @@ class PackageRepository extends EntityRepository
         $conn = $this->getEntityManager()->getConnection();
 
         return $conn->fetchAll(
-            'SELECT p.id FROM package p
+            'SELECT p.id, p.name FROM package p
             WHERE p.crawledAt IS NULL
             OR (p.autoUpdated = 0 AND p.crawledAt < :crawled)
             OR (p.crawledAt < :autocrawled)
