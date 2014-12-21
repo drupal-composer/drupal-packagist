@@ -55,7 +55,6 @@ class DrupalOgCommitLogParserCommand extends ContainerAwareCommand
          */
         $redis = $this->getContainer()->get('snc_redis.default');
         $commitlog = $redis->lrange('commitlog', 0, 99);
-        $commitlog = array();
 
         $diff = array_diff(array_keys($packages), $commitlog);
 
