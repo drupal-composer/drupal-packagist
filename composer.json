@@ -84,16 +84,16 @@
         },
         {
             "type": "git",
-            "url": "https://github.com/winmillwill/drupal-parse-composer"
+            "url": "https://github.com/webflo/drupal-parse-composer"
         },
         {
             "type": "package",
             "package": {
                 "name": "drupal/drupal",
-                "version": "7.28.0",
+                "version": "7.34.0",
                 "dist":
                 {
-                    "url": "http://ftp.drupal.org/files/projects/drupal-7.28.zip",
+                    "url": "http://ftp.drupal.org/files/projects/drupal-7.34.zip",
                     "type": "zip"
                 }
             }
