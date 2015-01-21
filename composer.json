@@ -21,7 +21,8 @@
     },
     "autoload": {
         "psr-0": {
-            "Packagist": "src/"
+            "Packagist": "src/",
+            "DrupalPackagist": "src/"
         }
     },
     "require": {
