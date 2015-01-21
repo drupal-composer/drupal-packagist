@@ -84,7 +84,7 @@
         },
         {
             "type": "git",
-            "url": "https://github.com/webflo/drupal-parse-composer"
+            "url": "https://github.com/drupal-composer/drupal-parse-composer.git"
         },
         {
             "type": "package",
