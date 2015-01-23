@@ -89,9 +89,7 @@ services:
     packagist.background_package_updater:
         class: Packagist\WebBundle\Package\BackgroundUpdater
         arguments:
-            - @doctrine
-            - @router
-            - @packagist.package_updater
+            - @service_container
     packagist.package_upserter:
         class: Packagist\WebBundle\Package\Upserter
         arguments:

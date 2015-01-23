@@ -53,7 +53,11 @@ class UpdatePackagesCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $verbose = $input->getOption('verbose');
+        $verbose = FALSE;
+
+        if ($input->hasOption('verbose')) {
+            $verbose = $input->getOption('verbose');
+        }
         $force = $input->getOption('force');
         $package = $input->getArgument('package');
 
