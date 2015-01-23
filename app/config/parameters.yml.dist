@@ -69,6 +69,11 @@ old_sound_rabbit_mq:
             exchange_options:
                 type: direct
                 name: add-packages
+        update_packages:
+            connection: default
+            exchange_options:
+                type: direct
+                name: update-packages
     consumers:
         add_packages:
             connection: default
@@ -78,3 +83,11 @@ old_sound_rabbit_mq:
                 type: direct
                 name: add-packages
             callback: packagist.background_package_upsert_consumer
+        update_packages:
+            connection: default
+            queue_options:
+                name: update-packages
+            exchange_options:
+                type: direct
+                name: update-packages
+            callback: packagist.background_package_updater
