@@ -102,20 +102,18 @@ class DrupalOgCommitLogParserCommand extends ContainerAwareCommand
         }
 
         if (isset($tasks['update'])) {
-            $client = $this->getContainer()->get('old_sound_rabbit_mq.update_packages_rpc');
+            $client = $this->getContainer()->get('old_sound_rabbit_mq.update_packages_producer');
             $input->setInteractive(FALSE);
             foreach ($tasks['update'] as $name) {
                 $name = self::VENDOR . '/' . $name;
                 $output->write('Queuing job ' . $name, TRUE);
-                $client->addRequest(
+                $client->publish(
                   serialize(
                     array(
                       'flags' => Updater::UPDATE_EQUAL_REFS,
                       'package_name' => $name
                     )
-                  ),
-                  'update_packages',
-                  $name
+                  )
                 );
             }
         }
