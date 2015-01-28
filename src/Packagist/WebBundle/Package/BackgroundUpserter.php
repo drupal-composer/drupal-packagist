@@ -1,6 +1,7 @@
 <?php
 namespace Packagist\WebBundle\Package;
 
+use Composer\Repository\InvalidRepositoryException;
 use Composer\Repository\VcsRepository;
 use Composer\Factory;
 use Composer\Package\Loader\ValidatingArrayLoader;
@@ -24,7 +25,7 @@ class Upserter {
         $this->updater  = $updater;
     }
 
-    public function execute($url, $packageName)
+    public function execute($url, $packageName, BufferIO $output)
     {
         $config = Factory::createConfig();
         $packageRepository = $this->doctrine

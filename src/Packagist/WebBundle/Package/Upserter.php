@@ -1,6 +1,7 @@
 <?php
 namespace Packagist\WebBundle\Package;
 
+use Composer\Repository\InvalidRepositoryException;
 use Composer\Repository\VcsRepository;
 use Composer\Factory;
 use Composer\Package\Loader\ValidatingArrayLoader;
