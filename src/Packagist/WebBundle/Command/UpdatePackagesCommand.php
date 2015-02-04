@@ -18,7 +18,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Packagist\WebBundle\Package\Updater;
-use Composer\Repository\VcsRepository;
+use Drupal\ParseComposer\Repository as VcsRepository;
 use Composer\Factory;
 use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Package\Loader\ArrayLoader;
