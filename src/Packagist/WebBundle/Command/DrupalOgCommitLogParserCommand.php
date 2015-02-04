@@ -90,15 +90,18 @@ class DrupalOgCommitLogParserCommand extends ContainerAwareCommand
         }
 
         if (isset($tasks['add'])) {
-            $this->getApplication()->find('packagist:bulk_add')->run(
-              new ArrayInput([
-                'command' => 'packagist:bulk_add',
-                'packages' => $tasks['add'],
-                '--repo-pattern' => 'http://git.drupal.org/project/%2$s',
-                '--vendor' => 'drupal'
-              ]),
-              $output
-            );
+            $client = $this->getContainer()->get('old_sound_rabbit_mq.add_packages_producer');
+            foreach ($tasks['add'] as $name) {
+                $output->write('Queuing add job ' . self::VENDOR . '/' . $name, TRUE);
+                $client->publish(
+                  serialize(
+                    array(
+                      'package_name' => self::VENDOR . '/' . $name,
+                      'url' => 'http://git.drupal.org/project/' . $name  . '.git'
+                    )
+                  )
+                );
+            }
         }
 
         if (isset($tasks['update'])) {
