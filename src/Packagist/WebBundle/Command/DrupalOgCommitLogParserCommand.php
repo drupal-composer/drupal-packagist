@@ -54,7 +54,7 @@ class DrupalOgCommitLogParserCommand extends ContainerAwareCommand
          * @var $redis \Predis\Client
          */
         $redis = $this->getContainer()->get('snc_redis.default');
-        $commitlog = $redis->lrange('commitlog', 0, 99);
+        $commitlog = $redis->lrange('commitlog', 0, 199);
 
         $diff = array_diff(array_keys($packages), $commitlog);
 
@@ -63,7 +63,7 @@ class DrupalOgCommitLogParserCommand extends ContainerAwareCommand
         }
 
         $redis->lpush('commitlog', $diff);
-        $redis->ltrim('commitlog', 0, 99);
+        $redis->ltrim('commitlog', 0, 199);
 
         $diff = array_values(array_unique(array_filter($diff)));
 
@@ -106,7 +106,7 @@ class DrupalOgCommitLogParserCommand extends ContainerAwareCommand
             $input->setInteractive(FALSE);
             foreach ($tasks['update'] as $name) {
                 $name = self::VENDOR . '/' . $name;
-                $output->write('Queuing job ' . $name, TRUE);
+                $output->write('Queuing update job ' . $name, TRUE);
                 $client->publish(
                   serialize(
                     array(
