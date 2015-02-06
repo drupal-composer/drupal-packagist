@@ -7,7 +7,6 @@
 
 namespace Packagist\WebBundle\Command;
 
-use Doctrine\ORM\NoResultException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use Guzzle\Service\Client;
 use Packagist\WebBundle\Package\Updater;
@@ -26,6 +25,16 @@ class UpdateGitRepositoryUrlCommand extends ContainerAwareCommand
 {
     const VENDOR = 'drupal';
 
+    /**
+     * @var \Guzzle\Service\ClientInterface
+     */
+    protected $httpClient;
+
+    /**
+     * @var \OldSound\RabbitMqBundle\RabbitMq\Producer
+     */
+    protected $queue;
+
     protected function configure()
     {
         $this->setName('packagist:drupal_org_update_repository_url')
@@ -36,15 +45,13 @@ class UpdateGitRepositoryUrlCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $doctrine = $this->getContainer()->get('doctrine');
         /**
          * @var \Doctrine\ORM\EntityManager $em;
          */
-        $em = $doctrine->getEntityManager();
-        $queue = $this->getContainer()->get('old_sound_rabbit_mq.update_packages_rpc');
-        $client = new Client();
+        $em = $this->getContainer()->get('doctrine')->getEntityManager();
 
-        $verbose = $input->getOption('verbose');
+        $this->httpClient = new Client();
+        $this->queue = $this->getContainer()->get('old_sound_rabbit_mq.update_packages_producer');
 
         $packages = array_filter($input->getArgument('package'));
         if (!empty($packages)) {
@@ -65,11 +72,11 @@ class UpdateGitRepositoryUrlCommand extends ContainerAwareCommand
          * @var \Packagist\WebBundle\Entity\Package[] $packages
          */
         foreach ($packages as $package) {
-          $output->write('Crawl drupal.org/project/' . $package->getName(), TRUE);
+          $output->write('Crawl drupal.org/project/' . $package->getPackageName(), TRUE);
           $content = NULL;
 
           try {
-            $request = $client->get('https://www.drupal.org/project/' . $package->getPackageName());
+            $request = $this->httpClient->get('https://www.drupal.org/project/' . $package->getPackageName());
             $response = $request->send();
             $content = (string) $response->getBody();
           }
@@ -81,7 +88,7 @@ class UpdateGitRepositoryUrlCommand extends ContainerAwareCommand
           $crawler = new Crawler($content);
           $result = $crawler->filter('#block-drupalorg-project-development a')
             ->reduce(function (Crawler $node, $i) {
-              return $node->text() == 'Repository viewer';
+              return $node->text() == 'Browse code repository';
             })
             ->attr('href');
 
@@ -90,17 +97,14 @@ class UpdateGitRepositoryUrlCommand extends ContainerAwareCommand
             $em->persist($package);
             $em->flush();
 
-            // Push to update queue.
-            $output->write('Queuing job ' . $package->getName(), TRUE);
-            $queue->addRequest(
+            $output->write('Queuing update job ' . $package->getName(), TRUE);
+            $this->queue->publish(
               serialize(
                 array(
                   'flags' => Updater::UPDATE_EQUAL_REFS,
                   'package_name' => $package->getName()
                 )
-              ),
-              'update_packages',
-              $package->getName()
+              )
             );
           }
           else {
