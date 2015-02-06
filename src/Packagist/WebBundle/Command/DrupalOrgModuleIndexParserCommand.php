@@ -22,51 +22,52 @@ use Composer\IO\ConsoleIO;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\DomCrawler\Crawler;
 
-class DrupalOrgModuleIndexParserCommand extends ContainerAwareCommand {
+class DrupalOrgModuleIndexParserCommand extends ContainerAwareCommand
+{
 
-  const VENDOR = 'drupal';
+    const VENDOR = 'drupal';
 
-  protected function configure() {
-    $this->setName('packagist:drupal_org_module_index_parser');
-  }
-
-  protected function execute(InputInterface $input, OutputInterface $output) {
-    $doctrine = $this->getContainer()->get('doctrine');
-    /**
-     * @var \Doctrine\ORM\EntityManager $em ;
-     */
-    $em = $doctrine->getEntityManager();
-    $queue = $this->getContainer()
-      ->get('old_sound_rabbit_mq.update_packages_rpc');
-    $client = new Client();
-
-    $request = $client->get('https://www.drupal.org/project/project_module/index?project-status=full&drupal_core=103');
-    $response = $request->send();
-
-    $packages = array();
-
-    $crawler = new Crawler((string) $response->getBody());
-    $crawler->filter('.view-project-index .views-field-title a')
-      ->each(function (Crawler $node, $i) use (&$packages) {
-        $packages[] = str_replace('/project/', '', $node->extract('href')[0]);
-      });
-
-    $client = $this->getContainer()
-      ->get('old_sound_rabbit_mq.add_packages_rpc');
-
-    foreach ($packages as $package) {
-      $output->write('Queue ' . $package);
-      $client->addRequest(
-        serialize(
-          array(
-            'url' => "http://git.drupal.org/project/{$package}.git",
-            'package_name' => static::VENDOR . '/' . $package
-          )
-        ),
-        'add_packages',
-        $package
-      );
+    protected function configure()
+    {
+        $this->setName('packagist:drupal_org_module_index_parser');
     }
-  }
+
+    protected function execute(InputInterface $input, OutputInterface $output)
+    {
+        $packages = array();
+        $client = new Client();
+
+        $urls = array(
+          'https://www.drupal.org/project/project_module/index?project-status=full&drupal_core=103', // 7.x
+          'https://www.drupal.org/project/project_module/index?project-status=full&drupal_core=7234', // 8.x
+        );
+
+        foreach ($urls as $url) {
+            $request = $client->get($url);
+            $response = $request->send();
+
+            $crawler = new Crawler((string) $response->getBody());
+            $crawler->filter('.view-project-index .views-field-title a')
+              ->each(function (Crawler $node, $i) use (&$packages) {
+                  $name = $node->extract('href')[0];
+                  $packages[$name] = str_replace('/project/', '', $name);
+              });
+        }
+
+        $client = $this->getContainer()
+          ->get('old_sound_rabbit_mq.add_packages_producer');
+        foreach ($packages as $name) {
+            $output->write('Queuing add job ' . self::VENDOR . '/' . $name,
+              true);
+            $client->publish(
+              serialize(
+                array(
+                  'package_name' => self::VENDOR . '/' . $name,
+                  'url' => 'http://git.drupal.org/project/' . $name . '.git'
+                )
+              )
+            );
+        }
+    }
 
 }
