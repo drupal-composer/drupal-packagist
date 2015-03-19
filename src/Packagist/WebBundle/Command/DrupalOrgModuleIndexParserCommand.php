@@ -38,8 +38,12 @@ class DrupalOrgModuleIndexParserCommand extends ContainerAwareCommand
         $client = new Client();
 
         $urls = array(
+          'https://www.drupal.org/project/project_distribution/index?project-status=full&drupal_core=103', // 7.x
+          'https://www.drupal.org/project/project_distribution/index?project-status=full&drupal_core=7234', // 8.x
           'https://www.drupal.org/project/project_module/index?project-status=full&drupal_core=103', // 7.x
           'https://www.drupal.org/project/project_module/index?project-status=full&drupal_core=7234', // 8.x
+          'https://www.drupal.org/project/project_theme/index?project-status=full&drupal_core=103', // 7.x
+          'https://www.drupal.org/project/project_theme/index?project-status=full&drupal_core=7234', // 8.x
         );
 
         foreach ($urls as $url) {
