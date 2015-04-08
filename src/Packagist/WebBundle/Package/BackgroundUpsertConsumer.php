@@ -6,10 +6,8 @@ use Composer\Factory;
 use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\IO\BufferIO;
-use Packagist\WebBundle\Entity\Package;
 use PhpAmqpLib\Message\AMQPMessage;
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
-use Drupal\ParseComposer\ReleaseInfoFactory;
 
 class BackgroundUpsertConsumer implements ConsumerInterface {
 
@@ -26,7 +24,6 @@ class BackgroundUpsertConsumer implements ConsumerInterface {
         $config   = Factory::createConfig();
         $output   = new BufferIO('');
         $output->loadConfiguration($config);
-        $response = false;
         try {
             $this->upserter->execute($body['url'], $body['package_name'], $output);
         }
