@@ -5,7 +5,7 @@
  * Contains \Packagist\WebBundle\Command\DrupalOgCommitLogParserCommand.
  */
 
-namespace Packagist\WebBundle\Command;
+namespace DrupalPackagist\Bundle\Command;
 
 use Doctrine\ORM\NoResultException;
 use Guzzle\Service\Client;

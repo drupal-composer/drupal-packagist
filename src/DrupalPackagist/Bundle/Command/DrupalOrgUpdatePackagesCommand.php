@@ -1,6 +1,6 @@
 <?php
 
-namespace Packagist\WebBundle\Command;
+namespace DrupalPackagist\Bundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
