@@ -24,7 +24,6 @@ class AppKernel extends Kernel
             new Nelmio\SolariumBundle\NelmioSolariumBundle(),
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
             new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle(),
-            new Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
             new DrupalPackagist\Bundle\DrupalPackagistBundle(),
         );
 
