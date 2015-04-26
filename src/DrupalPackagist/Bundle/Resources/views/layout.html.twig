@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<!--[if lte IE 8 ]> <html lang="en" class="no-js oldie"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="UTF-8" />
+
+        <title>{% block title %}Drupal Packagist{% endblock %}</title>
+        <meta name="description" content="" />
+        <meta name="author" content="Jordi Boggiano" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}" />
+
+        <link rel="stylesheet" href="{{ asset('bundles/drupalpackagist/css/main.css?v=15') }}" />
+        <link rel="stylesheet" href="{{ asset('css/humane/jackedup.css?v=3') }}" />
+        <link rel="stylesheet" href="{{ asset('css/fontawesome/font-awesome.css') }}" />
+        <!--[if lt IE 8]>
+        <link rel="stylesheet" href="{{ asset('css/fontawesome/font-awesome-ie7.css') }}" />
+        <![endif]-->
+
+        {% block head_feeds %}
+        <link rel="alternate" type="application/rss+xml" title="Newly Submitted Packages - Packagist" href="{{ url('feed_packages', {_format: 'rss'}) }}" />
+        <link rel="alternate" type="application/rss+xml" title="New Releases - Packagist" href="{{ url('feed_releases', {_format: 'rss'}) }}" />
+        {% endblock %}
+
+        <link rel="search" type="application/opensearchdescription+xml" href="{{ asset('search.osd') }}" title="Packagist" />
+
+        {# {% stylesheets
+            '@PackagistWebBundle/Resources/public/css/main.css'
+            'css/humane/jackedup.css'
+            filter="yui_css" output='css/main.css' %}
+            <link rel="stylesheet" href="{{ asset_url }}" />
+        {% endstylesheets %} #}
+
+        <script src="{{ asset('js/libs/modernizr-1.7.min.js') }}"></script>
+
+        {% block head_additions %}{% endblock %}
+    </head>
+    <body>
+        <div class="container">
+            <div class="user">
+                {% if app.user %}
+                    <a href="{{ path('fos_user_profile_show') }}">{{ app.user.username }}</a> | <a href="{{ path('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ path('fos_user_registration_register') }}">Create a new account</a>
+                    |
+                    <a href="{{ path('hwi_oauth_connect') }}">Login</a>
+                {% endif %}
+            </div>
+
+            <header>
+                <h1><a href="{{ path('home') }}">Drupal Packagist</a></h1>
+                <h2>The package repository for Drupal.</h2>
+            </header>
+
+            <div class="main" role="main">
+                {% for type, flashMessages in app.session.flashbag.all() %}
+                    {% for flashMessage in flashMessages %}
+                        {% if 'fos_user_' in type %}
+                            <div class="flash-message {{ type|replace({'fos_user_': ''}) }}">
+                                <p>{{ flashMessage|trans({}, 'FOSUserBundle') }}</p>
+                            </div>
+                        {% else %}
+                            <div class="flash-message {{ type }}">
+                                <p>{{ flashMessage }}</p>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+
+                {% block search %}
+                    {% if searchForm is defined %}
+                        <div class="box">
+                            {% include "PackagistWebBundle:Web:searchForm.html.twig" %}
+                            <div class="search-list hidden">
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+
+        <footer>
+            <ul>
+              <li><a href="https://twitter.com/drupal_composer">{{ 'menu.twitter'|trans }}</a></li>
+              <li><a href="mailto:info@drupal-composer.org">{{ 'menu.contact'|trans }}</a></li>
+            </ul>
+            <ul>
+              <li><a href="{{ path('browse') }}">{{ 'menu.browse_packages'|trans }}</a></li>
+              <li><a href="{{ path('stats') }}">{{ 'menu.stats'|trans }}</a></li>
+            </ul>
+            <ul>
+                <li><a href="{{ path('about') }}">{{ 'menu.about_packagist'|trans }}</a></li>
+                <li><a href="{{ path('feeds') }}">{{ 'menu.rss_feeds'|trans }}</a></li>
+                <li><a href="{{ path('home') }}">{{ 'menu.home'|trans }}</a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </footer>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script>!window.jQuery && document.write(unescape('%3Cscript src="{{ asset('js/libs/jquery-1.8.2.min.js') }}"%3E%3C/script%3E'))</script>
+        <script src="{{ asset('js/libs/humane.min.js?v=2') }}"></script>
+        <script src="{{ asset('js/libs/ZeroClipboard.min.js') }}"></script>
+        <script src="{{ asset('bundles/packagistweb/js/layout.js?v=2') }}"></script>
+        <script src="{{ asset('bundles/packagistweb/js/search.js?v=5')}}"></script>
+
+        {% if not app.debug and google_analytics.ga_key %}
+            <script>
+                var _gaq=[['_setAccount','{{ google_analytics.ga_key }}'],['_trackPageview']];
+                (function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.async=1;
+                g.src=('https:'==location.protocol?'//ssl':'//www')+'.google-analytics.com/ga.js';
+                s.parentNode.insertBefore(g,s)}(document,'script'));
+            </script>
+        {% endif %}
+
+        {% block scripts %}{% endblock %}
+    </body>
+</html>
