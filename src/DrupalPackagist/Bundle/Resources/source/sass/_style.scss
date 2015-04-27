@@ -11,24 +11,25 @@ html {
 }
 
 body {
-  background: #555 url("../img/texture.png");
+  background: $dc_white;
   font-size: 15px;
-  font-family: Helvetica, Arial;
-  color: #555;
+  font-family: $dc_font_secondary;
+  font-weight: 300;
+  color: $dc_black;
   min-height: 100%;
 }
 
 a, a:visited, a:active {
-  color: #0678be;
+  color: $dc_blue;
   text-decoration: none;
 }
 a:hover {
-  color: #0678be;
+  color: $dc_blue_lighter;
   text-decoration: underline;
 }
 
 .container {
-  background: #e5e5e5 url("../img/texture.png");
+  background: $dc_white;
   padding-bottom: 20px;
   border-bottom: 1px solid #fafafa;
   min-height: 400px;
@@ -68,12 +69,7 @@ header p {
   width: 900px;
   font-size: 15px;
   padding: 7px;
-  background: #f5f5f5;
-  border: 1px solid #fff;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
-  box-shadow: rgba(0, 0, 0, 0.25) 0 1px 3px;
+  background: $dc_white;
   margin-bottom: 10px;
 }
 
@@ -97,6 +93,8 @@ footer {
   width: 900px;
   margin: 0 auto;
   padding: 10px 0 4px;
+  background: $dc_black;
+  color: $dc_white;
 }
 footer ul {
   width: 30%;
@@ -111,18 +109,17 @@ footer li {
   padding: 2px;
 }
 footer ul a, footer ul a:visited {
-  color: #ddd;
+  color: $dc_gray_light;
   padding-left: 11px;
-  background: url("../img/footer_arrows.png") 0 2px no-repeat;
 }
 footer ul a:hover {
-  color: #fff;
+  color: $dc_white;
   background-position: 0 -18px;
 }
 footer p {
   float: left;
   margin-left: 90px;
-  color: #ccc;
+  color: $dc_white;
 }
 
 .flash-message {
@@ -131,15 +128,15 @@ footer p {
 }
 
 .flash-message.success {
-  color: #519f1c;
+  color: $dc_success;
 }
 .flash-message.error {
-  color: #a21a1a;
+  color: $dc_error;
 }
 
 p {
   margin-bottom: 10px;
-  font-family: "Arial", sans-serif;
+  font-family: $dc_font_secondary;
   line-height: 150%;
 }
 div.box > p:last-child {
@@ -153,25 +150,10 @@ div.box > p:last-child {
 .user {
   text-align: right;
   padding: 4px 8px 5px;
-  color: #fff;
-  /*
-  background: #bf7300;
-  background: -moz-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
-  background: -webkit-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
-  background: -o-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
-  background: -ms-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
-  background: linear-gradient(top, #bf7300 0%, #cc8f33 100%);
-  */
-  background: #064771;
-  box-shadow: rgba(0, 0, 0, 0.25) 0 1px 3px;
-  -webkit-border-bottom-right-radius: 6px;
-  -webkit-border-bottom-left-radius: 6px;
-  -moz-border-radius-bottomright: 6px;
-  -moz-border-radius-bottomleft: 6px;
-  border-bottom-right-radius: 6px;
-  border-bottom-left-radius: 6px;
+  color: $dc_white;
+  background: $dc_blue_lighter;
 }
-.user a, .user a:visited { color: #fff; }
+.user a, .user a:visited { color: $dc_white; }
 .user a:hover { text-decoration: underline; }
 
 .loginForm {
@@ -194,16 +176,11 @@ div.box > p:last-child {
 .submit, .submit:active, .submit:visited, input[type="submit"] {
   font-size: 22px;
   float: right;
-  background: #53a51d;
-  background: -moz-linear-gradient(top, #53a51d 0%, #75b74a 100%);
-  background: -webkit-linear-gradient(top, #53a51d 0%, #75b74a 100%);
-  background: -o-linear-gradient(top, #53a51d 0%, #75b74a 100%);
-  background: -ms-linear-gradient(top, #53a51d 0%, #75b74a 100%);
-  background: linear-gradient(top, #53a51d 0%, #75b74a 100%);
+  background: $dc_success;
   border-width: 0;
   display: block;
   padding: 12px 20px;
-  color: #fff;
+  color: $dc_white;
   margin: 13px 0 10px;
   text-decoration: none;
   -webkit-border-radius: 6px;
@@ -213,8 +190,8 @@ div.box > p:last-child {
 }
 
 .submit:hover {
-  color: #fff;
-  background: #53a51d;
+  color: $dc_white;
+  background: $dc_success;
 }
 
 .packages nav {
@@ -241,7 +218,7 @@ div.box > p:last-child {
 .main h1 {
   font-size: 25px;
   margin-bottom: 10px;
-  color: #0678be;
+  color: $dc_blue;
   font-weight: normal;
 }
 
@@ -257,7 +234,7 @@ ul.packages {
 }
 
 ul.packages h1 {
-  font-family: Verdana;
+  font-family: $dc_font_primary;
   font-size: 22px;
   line-height: 1em;
   font-weight: normal;
@@ -271,7 +248,7 @@ ul.packages h1 {
 
 ul.packages .metadata {
   float: right;
-  color: #555;
+  color: $dc_gray;
   font-size: 18px;
   margin-right: 10px;
   padding-top: 8px;
@@ -279,22 +256,22 @@ ul.packages .metadata {
 
 ul.packages .abandoned {
   float: right;
-  color: #800;
+  color: $dc_error;
   font-size: 12px;
   margin-right: 10px;
   margin-top: 5px;
 }
 
 ul.packages li {
-  background: none repeat scroll 0 0 #EEEEEE;
-  border: 1px solid #BBBBBB;
+  background: none repeat scroll 0 0 $dc_gray;
+  border: 1px solid $dc_gray_light;
   border-radius: 3px 3px 3px 3px;
   margin: 10px 0;
   padding: 0 0 0 10px;
 }
 
 ul.packages li.selected {
-  background: #F9F9EE;
+  background: $dc_gray_light;
 }
 
 label {
@@ -313,7 +290,7 @@ textarea {
 input[type="submit"] {
   width: 406px;
   float: none;
-  background: #64c523 url("../img/arrow.png") 370px center no-repeat;
+  background: $dc_success;
 }
 input[type="submit"].loading {
   background-image: url("../img/loader.gif");
@@ -321,8 +298,8 @@ input[type="submit"].loading {
 
 input[type="text"], input[type="password"], input[type="email"], input[type="search"] {
   padding: 4px;
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: $dc_white;
+  border: 1px solid $dc_gray;
   -moz-border-radius: 6px;
   -webkit-border-radius: 6px;
   border-radius: 6px;
@@ -411,7 +388,7 @@ form ul {
 }
 .package .warning {
   clear: both;
-  border: 1px solid #800;
+  border: 1px solid $dc_error;
   background: #fee;
   text-align: center;
   padding: 5px;
