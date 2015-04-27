@@ -185,12 +185,11 @@ body {
   min-height: 100%; }
 
 a, a:visited, a:active {
-  color: #0678be;
+  color: #c67700;
   text-decoration: none; }
 
 a:hover {
-  color: #0678be;
-  text-decoration: underline; }
+  color: #975a00; }
 
 .container {
   background: #e5e5e5 url("../img/texture.png");
@@ -203,22 +202,22 @@ a:hover {
   margin-left: auto;
   margin-right: auto; }
 
-.container header {
-  background: url("../img/drupal-packagist.svg") 0 0 no-repeat;
-  background-size: contain;
-  min-height: 100px;
-  margin-top: 15px;
-  margin-bottom: 15px; }
-
 header h1 {
-  padding-top: 5px;
-  padding-left: 115px;
-  font-size: 36px; }
+  margin: 10px 0 0;
+  padding: 0; }
+
+header h1 a {
+  display: inline-block;
+  text-decoration: none;
+  margin: 0;
+  width: 0;
+  height: 0;
+  padding: 85px 0 0 435px;
+  background: url("../img/logo.png") 0 0 no-repeat;
+  overflow: hidden; }
 
 header h2 {
-  padding-left: 115px;
-  padding-top: 5px;
-  font-size: 20px; }
+  display: none; }
 
 header p {
   clear: both;
@@ -255,12 +254,9 @@ footer {
   padding: 10px 0 4px; }
 
 footer ul {
-  width: 30%;
+  width: 20%;
   list-style: none;
-  float: left;
-  margin: 0;
-  padding-left: 1em;
-  padding-right: 1em; }
+  float: right; }
 
 footer li {
   margin: 0;
@@ -305,15 +301,12 @@ div.box > p:last-child {
   text-align: right;
   padding: 4px 8px 5px;
   color: #fff;
-  /*
   background: #bf7300;
   background: -moz-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
   background: -webkit-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
   background: -o-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
   background: -ms-linear-gradient(top, #bf7300 0%, #cc8f33 100%);
   background: linear-gradient(top, #bf7300 0%, #cc8f33 100%);
-  */
-  background: #064771;
   box-shadow: rgba(0, 0, 0, 0.25) 0 1px 3px;
   -webkit-border-bottom-right-radius: 6px;
   -webkit-border-bottom-left-radius: 6px;
@@ -386,7 +379,7 @@ div.box > p:last-child {
 .main h1 {
   font-size: 25px;
   margin-bottom: 10px;
-  color: #0678be;
+  color: #53a51d;
   font-weight: normal; }
 
 .main h2 {
@@ -463,7 +456,7 @@ input[type="text"], input[type="password"], input[type="email"], input[type="sea
 
 input[type="text"]:hover, input[type="password"]:hover, input[type="email"]:hover, input[type="search"]:hover,
 input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="search"]:focus {
-  border-color: #0678be;
+  border-color: #64c523;
   outline-style: none; }
 
 input[type="text"]:invalid, input[type="password"]:invalid, input[type="email"]:invalid {
