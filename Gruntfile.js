@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         files: {
           'src/DrupalPackagist/Bundle/Resources/public/css/main.css': 'src/DrupalPackagist/Bundle/Resources/source/sass/main.scss'
         }
-      },
+      }
     },
     watch: {
       sass: {
