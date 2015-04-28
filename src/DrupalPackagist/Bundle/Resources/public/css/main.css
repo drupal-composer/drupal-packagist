@@ -181,7 +181,7 @@ body {
   background: #FFF;
   font-size: 15px;
   font-family: "Raleway", Arial, sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   color: #2f3238;
   min-height: 100%; }
 
@@ -214,10 +214,11 @@ a:hover {
 header h1 {
   padding-top: 5px;
   padding-left: 115px;
-  font-size: 36px; }
+  font-size: 36px;
+  font-weight: 800; }
 
 header h2 {
-  font-weight: 300;
+  font-weight: 400;
   padding-left: 115px;
   padding-top: 5px;
   font-size: 24px; }
@@ -291,6 +292,7 @@ footer p {
 p {
   margin-bottom: 10px;
   font-family: "Raleway", Arial, sans-serif;
+  font-weight: 400;
   line-height: 150%; }
 
 div.box > p:last-child {
@@ -365,7 +367,7 @@ div.box > p:last-child {
   font-size: 25px;
   margin-bottom: 10px;
   color: #3498db;
-  font-weight: normal; }
+  font-weight: 400; }
 
 .main h2 {
   font-size: 20px;
@@ -380,7 +382,7 @@ ul.packages h1 {
   font-family: "Raleway", Arial, sans-serif;
   font-size: 22px;
   line-height: 1em;
-  font-weight: normal;
+  font-weight: 400;
   margin: 0;
   padding: 8px 4px 0 0;
   height: 32px;

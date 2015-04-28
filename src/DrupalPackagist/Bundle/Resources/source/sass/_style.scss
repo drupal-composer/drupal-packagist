@@ -14,7 +14,7 @@ body {
   background: $dc_white;
   font-size: 15px;
   font-family: $dc_font_secondary;
-  font-weight: 300;
+  font-weight: 400;
   color: $dc_black;
   min-height: 100%;
 }
@@ -53,10 +53,11 @@ header h1 {
   padding-top: 5px;
   padding-left: 115px;
   font-size: 36px;
+  font-weight: $font_weight_bold;
 }
 
 header h2 {
-  font-weight: 300;
+  font-weight: $font_weight_normal;
   padding-left: 115px;
   padding-top: 5px;
   font-size: 24px;
@@ -138,6 +139,7 @@ footer p {
 p {
   margin-bottom: 10px;
   font-family: $dc_font_secondary;
+  font-weight: $font_weight_normal;
   line-height: 150%;
 }
 div.box > p:last-child {
@@ -220,7 +222,7 @@ div.box > p:last-child {
   font-size: 25px;
   margin-bottom: 10px;
   color: $dc_blue;
-  font-weight: normal;
+  font-weight: $font_weight_normal;
 }
 
 .main h2 {
@@ -238,7 +240,7 @@ ul.packages h1 {
   font-family: $dc_font_primary;
   font-size: 22px;
   line-height: 1em;
-  font-weight: normal;
+  font-weight: $font_weight_normal;
   margin: 0;
   padding: 8px 4px 0 0;
   height: 32px;
