@@ -16,7 +16,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/781d8cb9255505b49266a34e17fd9e9acd56cfd7",
+                "url": "https://api.github.com/repos/composer/composer/zipball/4d5d5247045f2875cc6516d061641459a2108e3b",
                 "reference": "781d8cb9255505b49266a34e17fd9e9acd56cfd7",
                 "shasum": ""
             },
@@ -522,7 +522,9 @@
             "authors": [
                 {
                     "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
                 },
                 {
                     "name": "Symfony Community",
@@ -733,7 +735,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/1ac14fac3ced533047d8feae8edc7c283d5b8a67",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/a4f14d3a3d397104e557ec65d1a4e43bb86e4ddf",
                 "reference": "1ac14fac3ced533047d8feae8edc7c283d5b8a67",
                 "shasum": ""
             },
@@ -871,7 +873,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "416b148b5e8b13bf03645f11312a90164e169221"
+                "reference": "38bd858a07a984fd0f9f8461f3c49dca06d00b10"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -901,7 +903,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2015-02-06 16:48:01"
+            "time": "2015-05-07 15:56:53"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -937,8 +939,7 @@
                 {
                     "name": "Edward Z. Yang",
                     "email": "admin@htmlpurifier.org",
-                    "homepage": "http://ezyang.com",
-                    "role": "Developer"
+                    "homepage": "http://ezyang.com"
                 }
             ],
             "description": "Standards compliant HTML filter written in PHP",
@@ -1205,7 +1206,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/a9f88f394e4680d5383b9a129f0e21fc74ca187f",
+                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/c3790c23dbb32bd270da99fa00b42e2c086f906f",
                 "reference": "a9f88f394e4680d5383b9a129f0e21fc74ca187f",
                 "shasum": ""
             },
@@ -1395,9 +1396,9 @@
             ],
             "authors": [
                 {
-                    "name": "Johannes M. Schmitt",
+                    "name": "Johannes Schmitt",
                     "email": "schmittjoh@gmail.com",
-                    "homepage": "http://jmsyst.com",
+                    "homepage": "https://github.com/schmittjoh",
                     "role": "Developer of wrapped JMSSerializerBundle"
                 }
             ],
@@ -1437,9 +1438,9 @@
             ],
             "authors": [
                 {
-                    "name": "Johannes M. Schmitt",
+                    "name": "Johannes Schmitt",
                     "email": "schmittjoh@gmail.com",
-                    "homepage": "http://jmsyst.com",
+                    "homepage": "https://github.com/schmittjoh",
                     "role": "Developer of wrapped JMSSerializerBundle"
                 }
             ],
@@ -1502,9 +1503,9 @@
             ],
             "authors": [
                 {
-                    "name": "Johannes M. Schmitt",
+                    "name": "Johannes Schmitt",
                     "email": "schmittjoh@gmail.com",
-                    "homepage": "http://jmsyst.com",
+                    "homepage": "https://github.com/schmittjoh",
                     "role": "Developer of wrapped JMSSerializerBundle"
                 }
             ],
@@ -1657,9 +1658,9 @@
             ],
             "authors": [
                 {
-                    "name": "Johannes M. Schmitt",
+                    "name": "Johannes Schmitt",
                     "email": "schmittjoh@gmail.com",
-                    "homepage": "http://jmsyst.com",
+                    "homepage": "https://github.com/schmittjoh",
                     "role": "Developer of wrapped JMSSerializerBundle"
                 }
             ],
@@ -2548,12 +2549,12 @@
             "version": "2.4.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/basdenooijer/solarium.git",
+                "url": "https://github.com/solariumphp/solarium.git",
                 "reference": "f7c55cf42d14bb70f534128da3e343bb98fcb504"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/basdenooijer/solarium/zipball/f7c55cf42d14bb70f534128da3e343bb98fcb504",
+                "url": "https://api.github.com/repos/solariumphp/solarium/zipball/f7c55cf42d14bb70f534128da3e343bb98fcb504",
                 "reference": "f7c55cf42d14bb70f534128da3e343bb98fcb504",
                 "shasum": ""
             },
@@ -3141,7 +3142,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://packages.zendframework.com/composer/zendframework-zendframework-57de1d9e3fe0564d2572e0a961e905ae2279c003-zip-992dda.zip",
+                "url": "https://api.github.com/repos/zendframework/zf2/zipball/57de1d9e3fe0564d2572e0a961e905ae2279c003",
                 "reference": "2.0.8",
                 "shasum": "0b8790b1e9f5cbb5b50c0443851b26e1ed36e80c"
             },
