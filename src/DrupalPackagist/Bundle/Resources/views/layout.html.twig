@@ -41,6 +41,7 @@
     </head>
     <body>
         <div class="container">
+            {#
             <div class="user">
                 {% if app.user %}
                     <a href="{{ path('fos_user_profile_show') }}">{{ app.user.username }}</a> | <a href="{{ path('logout') }}">Logout</a>
@@ -50,6 +51,7 @@
                     <a href="{{ path('hwi_oauth_connect') }}">Login</a>
                 {% endif %}
             </div>
+            #}
 
             <header>
                 <h1><a href="{{ path('home') }}">Drupal Packagist</a></h1>
@@ -87,6 +89,7 @@
         </div>
 
         <footer>
+          <div class="inner">
             <ul>
               <li><a href="https://twitter.com/drupal_composer">{{ 'menu.twitter'|trans }}</a></li>
               <li><a href="mailto:info@drupal-composer.org">{{ 'menu.contact'|trans }}</a></li>
@@ -101,6 +104,7 @@
                 <li><a href="{{ path('home') }}">{{ 'menu.home'|trans }}</a></li>
             </ul>
             <div class="clearfix"></div>
+          </div>
         </footer>
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>

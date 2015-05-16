@@ -16,7 +16,10 @@ body {
   font-family: $dc_font_secondary;
   font-weight: 400;
   color: $dc_black;
-  min-height: 100%;
+
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
 }
 
 a, a:visited, a:active {
@@ -28,11 +31,26 @@ a:hover {
   text-decoration: underline;
 }
 
+::selection {
+  background: $dc_gray_light;
+  color: #000;
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: $dc_gray_light;
+  color: #000;
+  text-shadow: none;
+}
+
 .container {
   background: $dc_white;
+  padding-top: 15px;
   padding-bottom: 20px;
   border-bottom: 1px solid #fafafa;
   min-height: 400px;
+
+  flex: 1;
 }
 
 .container div.user, .container div.box, .container header, .container div.flash-message {
@@ -45,7 +63,6 @@ a:hover {
   background: url("../img/drupal-packagist.svg") 0 0 no-repeat;
   background-size: contain;
   min-height: 100px;
-  margin-top: 15px;
   margin-bottom: 15px;
 }
 
@@ -92,11 +109,13 @@ header {
 }
 
 footer {
+  padding: 10px 0 4px;
+  color: $dc_white;
+  background-color: $dc_black;
+}
+footer .inner {
   width: 900px;
   margin: 0 auto;
-  padding: 10px 0 4px;
-  background: $dc_black;
-  color: $dc_white;
 }
 footer ul {
   width: 30%;
@@ -405,7 +424,7 @@ form ul {
   white-space: nowrap;
 }
 .package .tags a {
-  background: #c67700;
+  background: $dc_blue_lighter;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
