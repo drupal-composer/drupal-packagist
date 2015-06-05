@@ -285,11 +285,9 @@ ul.packages .abandoned {
 }
 
 ul.packages li {
-  background: none repeat scroll 0 0 $dc_gray;
-  border: 1px solid $dc_gray_light;
-  border-radius: 3px 3px 3px 3px;
-  margin: 10px 0;
-  padding: 0 0 0 10px;
+  border: 2px solid $dc_blue_lighter;
+  margin: 1em 0;
+  padding: 0.5em 1em;
 }
 
 ul.packages li.selected {
@@ -444,13 +442,10 @@ form ul {
 .package .downloads {
   clear: both;
   float: right;
-  border: 1px solid #bbb;
-  background: #eee;
-  padding: 5px 10px;
-  margin: 0 0 10px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+  border: 2px solid $dc_gray_light;
+  background: $dc_white;
+  padding: 0.5em 1em;
+  margin: 0 0 1em;
 }
 .package .downloads span {
   display: inline-block;
@@ -468,13 +463,10 @@ form ul {
   margin: 0;
 }
 .package .version {
-  background: #eee;
-  padding: 5px 10px;
-  border: 1px solid #bbb;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
-  margin-bottom: 10px;
+  background: $dc_white;
+  padding: 0.5em 1em;
+  border: 2px solid $dc_gray_light;
+  margin-bottom: 1em;
 }
 .package .version.last {
   margin-bottom: 0;
@@ -554,17 +546,13 @@ form ul {
   margin: 0 -5px;
   padding: 0 4px;
   width: 100%;
-  border: 1px solid #ccc;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-  background: url(../img/expand.gif) center center no-repeat #ddd;
+  background: url(../img/expand.gif) center center no-repeat $dc_gray_light;
 }
 .package .details-toggler.open {
   background-image: url(../img/contract.gif);
 }
 .package .details-toggler:hover {
-  background-color: #ccc;
+  background-color: $dc_blue_lighter;
   cursor: pointer;
 }
 .package .description, .package .details {
