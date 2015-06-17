@@ -16,7 +16,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/9fb2d4f2d642a0749decb41bc2fe4be2bf8bef7a",
+                "url": "https://api.github.com/repos/composer/composer/zipball/b2173d28fc8b56236eddc8aa10dcda61471633ec",
                 "reference": "781d8cb9255505b49266a34e17fd9e9acd56cfd7",
                 "shasum": ""
             },
@@ -556,7 +556,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/DoctrineMigrationsBundle/zipball/eaa9eb5ea101dc494d7f57d1a86905e56a211d49",
+                "url": "https://api.github.com/repos/doctrine/DoctrineMigrationsBundle/zipball/e33e07137c43a492589e89d79d36807cbfcf28e0",
                 "reference": "6a1bd731dbdd4ad952a3b246a8f38c9c12f52e62",
                 "shasum": ""
             },
@@ -873,7 +873,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "fd1d0ed82593123685c2d134439304982b543116"
+                "reference": "919ad3eb6ad40f68b83fe30bd0b5ac1fa7eb5207"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -903,7 +903,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2015-06-07 17:38:00"
+            "time": "2015-06-17 23:37:31"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -1206,7 +1206,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/2e12c7ab9cf83ce0d3e9d6a98315bbf21ab23ab3",
+                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/d7caff8257d7b5807f2f56d03d7bddca6484265b",
                 "reference": "a9f88f394e4680d5383b9a129f0e21fc74ca187f",
                 "shasum": ""
             },
