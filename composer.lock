@@ -5,6 +5,7 @@
         "This file is @generated automatically"
     ],
     "hash": "6d962cb2f4444ab44410e95ec031ead4",
+    "content-hash": "aad0c40a1b3fe3172184b4c53ae83d21",
     "packages": [
         {
             "name": "composer/composer",
@@ -16,7 +17,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/b2173d28fc8b56236eddc8aa10dcda61471633ec",
+                "url": "https://api.github.com/repos/composer/composer/zipball/07da4892456cc2f297a1b1c252a1f75cd12b85ea",
                 "reference": "781d8cb9255505b49266a34e17fd9e9acd56cfd7",
                 "shasum": ""
             },
@@ -735,7 +736,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/67f02686c6c779ae50489728b91026bc8199720c",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/68cc7bf629a7c1fc0696e583cc8ed46f897d0afb",
                 "reference": "1ac14fac3ced533047d8feae8edc7c283d5b8a67",
                 "shasum": ""
             },
@@ -873,7 +874,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "919ad3eb6ad40f68b83fe30bd0b5ac1fa7eb5207"
+                "reference": "5bbcc38b6d576726a73de7a44927c5e41b81bb2d"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -903,7 +904,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2015-06-17 23:37:31"
+            "time": "2015-11-06 01:16:36"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -1206,7 +1207,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/d7caff8257d7b5807f2f56d03d7bddca6484265b",
+                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/7b26e8b87945f825bb5df29691ee72e12cf97894",
                 "reference": "a9f88f394e4680d5383b9a129f0e21fc74ca187f",
                 "shasum": ""
             },
@@ -2496,7 +2497,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/snc/SncRedisBundle/zipball/732bfa62ea1e30dbbda12486f971573274d3b48f",
+                "url": "https://api.github.com/repos/snc/SncRedisBundle/zipball/77f65e3d86a5e21b9bf3710d7e021595df2b6417",
                 "reference": "732bfa62ea1e30dbbda12486f971573274d3b48f",
                 "shasum": ""
             },
@@ -2644,12 +2645,12 @@
             "target-dir": "Symfony/Bundle/AsseticBundle",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/AsseticBundle.git",
+                "url": "https://github.com/symfony/assetic-bundle.git",
                 "reference": "146dd3cb46b302bd471560471c6aaa930483dac1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/AsseticBundle/zipball/146dd3cb46b302bd471560471c6aaa930483dac1",
+                "url": "https://api.github.com/repos/symfony/assetic-bundle/zipball/146dd3cb46b302bd471560471c6aaa930483dac1",
                 "reference": "146dd3cb46b302bd471560471c6aaa930483dac1",
                 "shasum": ""
             },
@@ -2706,12 +2707,12 @@
             "version": "v2.7.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/MonologBundle.git",
+                "url": "https://github.com/symfony/monolog-bundle.git",
                 "reference": "9320b6863404c70ebe111e9040dab96f251de7ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/MonologBundle/zipball/9320b6863404c70ebe111e9040dab96f251de7ac",
+                "url": "https://api.github.com/repos/symfony/monolog-bundle/zipball/9320b6863404c70ebe111e9040dab96f251de7ac",
                 "reference": "9320b6863404c70ebe111e9040dab96f251de7ac",
                 "shasum": ""
             },
@@ -2765,12 +2766,12 @@
             "version": "v2.3.8",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/SwiftmailerBundle.git",
+                "url": "https://github.com/symfony/swiftmailer-bundle.git",
                 "reference": "970b13d01871207e81d17b17ddda025e7e21e797"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/SwiftmailerBundle/zipball/970b13d01871207e81d17b17ddda025e7e21e797",
+                "url": "https://api.github.com/repos/symfony/swiftmailer-bundle/zipball/970b13d01871207e81d17b17ddda025e7e21e797",
                 "reference": "970b13d01871207e81d17b17ddda025e7e21e797",
                 "shasum": ""
             },
