@@ -17,7 +17,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/07da4892456cc2f297a1b1c252a1f75cd12b85ea",
+                "url": "https://api.github.com/repos/composer/composer/zipball/dbcf8cae1384dfc5acab5ec1d07d43580d326a48",
                 "reference": "781d8cb9255505b49266a34e17fd9e9acd56cfd7",
                 "shasum": ""
             },
@@ -736,7 +736,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/68cc7bf629a7c1fc0696e583cc8ed46f897d0afb",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/503ea5cc9c8ae38790a6899d842aaa92d55258bb",
                 "reference": "1ac14fac3ced533047d8feae8edc7c283d5b8a67",
                 "shasum": ""
             },
@@ -874,7 +874,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "5bbcc38b6d576726a73de7a44927c5e41b81bb2d"
+                "reference": "2a3f5adee1281c931cc745681913c1760c05e580"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -904,7 +904,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2015-11-06 01:16:36"
+            "time": "2015-11-06 01:30:56"
         },
         {
             "name": "ezyang/htmlpurifier",
