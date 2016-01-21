@@ -20,7 +20,7 @@ populate the database so that you can generate a composer repository like so:
 
 ```
 ./app/console packagist:bulk_add --repo-pattern \
-'http://git.drupal.org/project/%2$s' --vendor drupal $(curl \
+'https://git.drupal.org/project/%2$s' --vendor drupal $(curl \
 https://drupal.org/files/releases.tsv | grep 7.x | awk '{ print $3 }' | sort | uniq -)
 ```
 

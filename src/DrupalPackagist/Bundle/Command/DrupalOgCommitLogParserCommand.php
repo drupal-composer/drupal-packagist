@@ -97,7 +97,7 @@ class DrupalOgCommitLogParserCommand extends ContainerAwareCommand
                   serialize(
                     array(
                       'package_name' => self::VENDOR . '/' . $name,
-                      'url' => 'http://git.drupal.org/project/' . $name  . '.git'
+                      'url' => 'https://git.drupal.org/project/' . $name  . '.git'
                     )
                   )
                 );
