@@ -17,7 +17,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/dbcf8cae1384dfc5acab5ec1d07d43580d326a48",
+                "url": "https://api.github.com/repos/composer/composer/zipball/06a21132dbd480045eb9ce9323f19265d83f9c00",
                 "reference": "781d8cb9255505b49266a34e17fd9e9acd56cfd7",
                 "shasum": ""
             },
@@ -736,7 +736,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/migrations/zipball/503ea5cc9c8ae38790a6899d842aaa92d55258bb",
+                "url": "https://api.github.com/repos/doctrine/migrations/zipball/b23bf53537c0e9d3f3cc11184f21720bac78234a",
                 "reference": "1ac14fac3ced533047d8feae8edc7c283d5b8a67",
                 "shasum": ""
             },
@@ -874,7 +874,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "2a3f5adee1281c931cc745681913c1760c05e580"
+                "reference": "b509132a31d71184b4c36b01d69f043f791bd731"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -904,7 +904,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2015-11-06 01:30:56"
+            "time": "2016-01-21 18:08:02"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -1207,7 +1207,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/7b26e8b87945f825bb5df29691ee72e12cf97894",
+                "url": "https://api.github.com/repos/hwi/HWIOAuthBundle/zipball/6e404aa32537274fecfe39da981ffa50281cb7fd",
                 "reference": "a9f88f394e4680d5383b9a129f0e21fc74ca187f",
                 "shasum": ""
             },
@@ -2497,7 +2497,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/snc/SncRedisBundle/zipball/77f65e3d86a5e21b9bf3710d7e021595df2b6417",
+                "url": "https://api.github.com/repos/snc/SncRedisBundle/zipball/3b11bdc877f470fa8a1e728ada48c62c0d33e0ed",
                 "reference": "732bfa62ea1e30dbbda12486f971573274d3b48f",
                 "shasum": ""
             },
