@@ -93,7 +93,7 @@ class UpdateGitRepositoryUrlCommand extends ContainerAwareCommand
             ->attr('href');
 
           if (!empty($result)) {
-            $package->setRepository(str_replace('drupalcode.org', 'git.drupal.org', $result));
+            $package->setRepository(str_replace('http://drupalcode.org', 'https://git.drupal.org', $result));
             $em->persist($package);
             $em->flush();
 
