@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6d962cb2f4444ab44410e95ec031ead4",
-    "content-hash": "aad0c40a1b3fe3172184b4c53ae83d21",
+    "hash": "944c331f8442724121a5777dcad247c8",
+    "content-hash": "d90285fd0dc2db69340c03a15f081def",
     "packages": [
         {
             "name": "composer/composer",
@@ -859,10 +859,10 @@
         },
         {
             "name": "drupal/drupal",
-            "version": "7.34.0",
+            "version": "7.41.0",
             "dist": {
                 "type": "zip",
-                "url": "http://ftp.drupal.org/files/projects/drupal-7.34.zip",
+                "url": "https://ftp.drupal.org/files/projects/drupal-7.41.zip",
                 "reference": null,
                 "shasum": null
             },
