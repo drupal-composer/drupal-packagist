@@ -18,6 +18,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Finder\Finder;
 use Packagist\WebBundle\Entity\Version;
+use Doctrine\DBAL\Connection;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -86,6 +87,12 @@ class SymlinkDumper
     private $writeLog = array();
 
     /**
+     * Generate compressed files.
+     * @var int 0 disabled, 9 maximum.
+     */
+    private $compress;
+
+    /**
      * Constructor
      *
      * @param RegistryInterface     $doctrine
@@ -93,8 +100,9 @@ class SymlinkDumper
      * @param UrlGeneratorInterface $router
      * @param string                $webDir     web root
      * @param string                $targetDir
+     * @param int                   $compress
      */
-    public function __construct(RegistryInterface $doctrine, Filesystem $filesystem, UrlGeneratorInterface $router, $webDir, $targetDir)
+    public function __construct(RegistryInterface $doctrine, Filesystem $filesystem, UrlGeneratorInterface $router, $webDir, $targetDir, $compress)
     {
         $this->doctrine = $doctrine;
         $this->fs = $filesystem;
@@ -102,6 +110,7 @@ class SymlinkDumper
         $this->router = $router;
         $this->webDir = realpath($webDir);
         $this->buildDir = $targetDir;
+        $this->compress = $compress;
     }
 
     /**
@@ -175,6 +184,8 @@ class SymlinkDumper
             }
         }
 
+        $dumpTimeUpdates = [];
+
         try {
             $modifiedIndividualFiles = array();
 
@@ -231,11 +242,9 @@ class SymlinkDumper
                     $this->fs->mkdir(dirname($buildDir.'/'.$name));
                     $this->writeFile($buildDir.'/'.$name.'.files', json_encode(array_keys($affectedFiles)));
 
-                    $package->setDumpedAt($dumpTime);
+                    $dumpTimeUpdates[$dumpTime->format('Y-m-d H:i:s')][] = $package->getId();
                 }
 
-                // update dump dates
-                $this->doctrine->getManager()->flush();
                 unset($packages, $package, $version);
                 $this->doctrine->getManager()->clear();
 
@@ -330,6 +339,9 @@ class SymlinkDumper
                 if (file_exists($webDir.'/packages.json')) {
                     unlink($webDir.'/packages.json');
                 }
+                if (file_exists($webDir.'/packages.json.gz')) {
+                    unlink($webDir.'/packages.json.gz');
+                }
                 if (defined('PHP_WINDOWS_VERSION_BUILD')) {
                     $sourcePath = $buildDir.'/packages.json';
                     if (!copy($sourcePath, $webDir.'/packages.json')) {
@@ -339,6 +351,9 @@ class SymlinkDumper
                     $sourcePath = 'p/packages.json';
                     if (!symlink($sourcePath, $webDir.'/packages.json')) {
                         throw new \RuntimeException('Could not symlink the packages.json file');
+                    }
+                    if ($this->compress && !symlink($sourcePath.'.gz', $webDir.'/packages.json.gz')) {
+                        throw new \RuntimeException('Could not symlink the packages.json.gz file');
                     }
                 }
             }
@@ -384,18 +399,48 @@ class SymlinkDumper
             $this->cleanOldFiles($buildDir, $oldBuildDir, $safeFiles);
         }
 
+        if ($verbose) {
+            echo 'Updating package dump times'.PHP_EOL;
+        }
+        foreach ($dumpTimeUpdates as $dt => $ids) {
+            $retries = 5;
+            // retry loop in case of a lock timeout
+            while ($retries--) {
+                try {
+                    $this->doctrine->getManager()->getConnection()->executeQuery(
+                        'UPDATE package SET dumpedAt=:dumped WHERE id IN (:ids)',
+                        [
+                            'ids' => $ids,
+                            'dumped' => $dt,
+                        ],
+                        ['ids' => Connection::PARAM_INT_ARRAY]
+                    );
+                } catch (\Exception $e) {
+                    if (!$retries) {
+                        throw $e;
+                    }
+                    sleep(2);
+                }
+            }
+        }
+
+        // TODO when a package is deleted, it should be removed from provider files, or marked for removal at least
         return true;
     }
 
     private function switchActiveWebDir($webDir, $buildDir)
     {
-        if (defined('PHP_WINDOWS_VERSION_BUILD')) {
-            @rmdir($webDir.'/p');
-        } else {
-            @unlink($webDir.'/p');
+        $newLink = $webDir.'/p-new';
+        $oldLink = $webDir.'/p';
+
+        if (file_exists($newLink)) {
+            unlink($newLink);
         }
-        if (!symlink($buildDir, $webDir.'/p')) {
+        if (!symlink($buildDir, $newLink)) {
             throw new \RuntimeException('Could not symlink the build dir into the web dir');
+        }
+        if (!rename($newLink, $oldLink)) {
+            throw new \RuntimeException('Could not replace the old symlink with the new one in the web dir');
         }
     }
 
@@ -431,13 +476,35 @@ class SymlinkDumper
 
         // clean up old provider listings
         $finder = Finder::create()->depth(0)->files()->name('provider-*.json')->ignoreVCS(true)->in($buildDir)->date('until 10minutes ago');
-        $providerFiles = array();
         foreach ($finder as $provider) {
             $key = strtr(str_replace($buildDir.DIRECTORY_SEPARATOR, '', $provider), '\\', '/');
             if (!in_array($key, $safeFiles, true)) {
-                unlink((string) $provider);
-                if (file_exists($altDirFile = str_replace($buildDir, $oldBuildDir, (string) $provider))) {
+                $path = (string) $provider;
+                unlink($path);
+                if (file_exists($path.'.gz')) {
+                    unlink($path.'.gz');
+                }
+                if (file_exists($altDirFile = str_replace($buildDir, $oldBuildDir, $path))) {
                     unlink($altDirFile);
+                    if (file_exists($altDirFile.'.gz')) {
+                        unlink($altDirFile.'.gz');
+                    }
+                }
+            }
+        }
+
+        // clean up old root listings
+        $finder = Finder::create()->depth(0)->files()->name('packages.json-*')->ignoreVCS(true)->in($buildDir)->date('until 10minutes ago');
+        foreach ($finder as $rootFile) {
+            $path = (string) $rootFile;
+            unlink($path);
+            if (file_exists($path.'.gz')) {
+                unlink($path.'.gz');
+            }
+            if (file_exists($altDirFile = str_replace($buildDir, $oldBuildDir, $path))) {
+                unlink($altDirFile);
+                if (file_exists($altDirFile.'.gz')) {
+                    unlink($altDirFile.'.gz');
                 }
             }
         }
@@ -452,7 +519,21 @@ class SymlinkDumper
             ksort($this->rootFile['packages'][$package]);
         }
 
-        $this->writeFile($file, json_encode($this->rootFile));
+        if (file_exists($file)) {
+            $timedFile = $file.'-'.time();
+            rename($file, $timedFile);
+            if (file_exists($file.'.gz')) {
+                rename($file.'.gz', $timedFile.'.gz');
+            }
+        }
+
+        $json = json_encode($this->rootFile);
+        $time = time();
+
+        $this->writeFile($file, $json, $time);
+        if ($this->compress) {
+            $this->writeFile($file . '.gz', gzencode($json, $this->compress), $time);
+        }
     }
 
     private function dumpListing($path)
@@ -465,7 +546,14 @@ class SymlinkDumper
         $json = json_encode($this->listings[$key]);
         $hash = hash('sha256', $json);
         $path = substr($path, 0, -5) . '$' . $hash . '.json';
-        $this->writeFile($path, $json);
+        $time = time();
+
+        if (!file_exists($path)) {
+            $this->writeFile($path, $json, $time);
+            if ($this->compress) {
+                $this->writeFile($path . '.gz', gzencode($json, $this->compress), $time);
+            }
+        }
 
         return array($path, $hash);
     }
@@ -520,11 +608,9 @@ class SymlinkDumper
         $data = $version->toArray();
         $data['uid'] = $version->getId();
         $this->individualFiles[$key]['packages'][strtolower($version->getName())][$version->getVersion()] = $data;
-        if (is_object($version->getReleasedAt())) {
-            if (!isset($this->individualFilesMtime[$key])
-                || $this->individualFilesMtime[$key] < $version->getReleasedAt()->getTimestamp()) {
-                $this->individualFilesMtime[$key] = $version->getReleasedAt()->getTimestamp();
-            }
+        $timestamp = $version->getReleasedAt() ? $version->getReleasedAt()->getTimestamp() : time();
+        if (!isset($this->individualFilesMtime[$key]) || $this->individualFilesMtime[$key] < $timestamp) {
+            $this->individualFilesMtime[$key] = $timestamp;
         }
     }
 
@@ -552,29 +638,50 @@ class SymlinkDumper
         return !is_dir($path);
     }
 
+    private function getTargetListingBlocks($now)
+    {
+        $blocks = array();
+
+        // monday last week
+        $blocks['latest'] = strtotime('monday last week', $now);
+
+        $month = date('n', $now);
+        $month = ceil($month / 3) * 3 - 2; // 1 for months 1-3, 10 for months 10-12
+        $block = new \DateTime(date('Y', $now).'-'.$month.'-01'); // 1st day of current trimester
+
+        // split last 12 months in 4 trimesters
+        for ($i=0; $i < 4; $i++) {
+            $blocks[$block->format('Y-m')] = $block->getTimestamp();
+            $block->sub(new \DateInterval('P3M'));
+        }
+
+        $year = (int) $block->format('Y');
+
+        while ($year >= 2013) {
+            $blocks[''.$year] = strtotime($year.'-01-01');
+            $year--;
+        }
+
+        return $blocks;
+    }
+
     private function getTargetListing($file)
     {
-        static $firstOfTheMonth;
-        if (!$firstOfTheMonth) {
-            $date = new \DateTime;
-            $date->setDate($date->format('Y'), $date->format('m'), 1);
-            $date->setTime(0, 0, 0);
-            $firstOfTheMonth = $date->format('U');
+        static $blocks;
+
+        if (!$blocks) {
+            $blocks = $this->getTargetListingBlocks(time());
         }
 
         $mtime = filemtime($file);
 
-        if ($mtime < $firstOfTheMonth - 86400 * 180) {
-            return 'provider-archived.json';
-        }
-        if ($mtime < $firstOfTheMonth - 86400 * 60) {
-            return 'provider-stale.json';
-        }
-        if ($mtime < $firstOfTheMonth - 86400 * 10) {
-            return 'provider-active.json';
+        foreach ($blocks as $label => $block) {
+            if ($mtime >= $block) {
+                return "provider-${label}.json";
+            }
         }
 
-        return 'provider-latest.json';
+        return "provider-archived.json";
     }
 
     private function writeFile($path, $contents, $mtime = null)

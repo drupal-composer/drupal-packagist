@@ -17,6 +17,10 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\RepositoryInterface;
 use Composer\Repository\InvalidRepositoryException;
 use Composer\Util\ErrorHandler;
+use Composer\Util\RemoteFilesystem;
+use Composer\Json\JsonFile;
+use Composer\Config;
+use Composer\IO\IOInterface;
 use Packagist\WebBundle\Entity\Author;
 use Packagist\WebBundle\Entity\Package;
 use Packagist\WebBundle\Entity\Tag;
@@ -85,22 +89,19 @@ class Updater
      * @param int $flags a few of the constants of this class
      * @param \DateTime $start
      */
-    public function update(Package $package, RepositoryInterface $repository, $flags = 0, \DateTime $start = null)
+    public function update(IOInterface $io, Config $config, Package $package, RepositoryInterface $repository, $flags = 0, \DateTime $start = null)
     {
+        $rfs = new RemoteFilesystem($io, $config);
         $blacklist = '{^symfony/symfony (2.0.[456]|dev-charset|dev-console)}i';
 
         if (null === $start) {
             $start = new \DateTime();
         }
         $pruneDate = clone $start;
-        $pruneDate->modify('-8days');
+        $pruneDate->modify('-1min');
 
         $versions = $repository->getPackages();
         $em = $this->doctrine->getManager();
-
-        if ($repository->hadInvalidBranches()) {
-            throw new InvalidRepositoryException('Some branches contained invalid data and were discarded, it is advised to review the log and fix any issues present in branches');
-        }
 
         usort($versions, function ($a, $b) {
             $aVersion = $a->getVersion();
@@ -166,9 +167,16 @@ class Updater
             }
         }
 
+        if (preg_match('{^(?:git://|git@|https?://)github.com[:/]([^/]+)/(.+?)(?:\.git|/)?$}i', $package->getRepository(), $match)) {
+            $this->updateGitHubInfo($rfs, $package, $match[1], $match[2]);
+        }
+
         $package->setUpdatedAt(new \DateTime);
         $package->setCrawledAt(new \DateTime);
         $em->flush();
+        if ($repository->hadInvalidBranches()) {
+            throw new InvalidRepositoryException('Some branches contained invalid data and were discarded, it is advised to review the log and fix any issues present in branches');
+        }
     }
 
     private function updateInformation(Package $package, PackageInterface $data, $flags)
@@ -199,8 +207,9 @@ class Updater
 
         $em->persist($version);
 
-        $version->setDescription($data->getDescription());
-        $package->setDescription($data->getDescription());
+        $descr = $this->sanitize($data->getDescription());
+        $version->setDescription($descr);
+        $package->setDescription($descr);
         $version->setHomepage($data->getHomepage());
         $version->setLicense($data->getLicense() ?: array());
 
@@ -228,9 +237,10 @@ class Updater
         }
 
         if ($data->getType()) {
-            $version->setType($data->getType());
-            if ($data->getType() && $data->getType() !== $package->getType()) {
-                $package->setType($data->getType());
+            $type = $this->sanitize($data->getType());
+            $version->setType($type);
+            if ($type !== $package->getType()) {
+                $package->setType($type);
             }
         }
 
@@ -380,5 +390,114 @@ class Updater
         }
 
         return true;
+    }
+
+    private function updateGitHubInfo(RemoteFilesystem $rfs, Package $package, $owner, $repo)
+    {
+        $baseApiUrl = 'https://api.github.com/repos/'.$owner.'/'.$repo;
+
+        try {
+            $repoData = JsonFile::parseJson($rfs->getContents('github.com', $baseApiUrl, false), $baseApiUrl);
+        } catch (\Exception $e) {
+            return;
+        }
+
+        try {
+            $opts = ['http' => ['header' => ['Accept: application/vnd.github.v3.html']]];
+            $readme = $rfs->getContents('github.com', $baseApiUrl.'/readme', false, $opts);
+        } catch (\Exception $e) {
+            if (!$e instanceof \Composer\Downloader\TransportException || $e->getCode() !== 404) {
+                return;
+            }
+            // 404s just mean no readme present so we proceed with the rest
+        }
+
+        if (!empty($readme)) {
+            $elements = array(
+                'p',
+                'br',
+                'small',
+                'strong', 'b',
+                'em', 'i',
+                'strike',
+                'sub', 'sup',
+                'ins', 'del',
+                'ol', 'ul', 'li',
+                'h1', 'h2', 'h3',
+                'dl', 'dd', 'dt',
+                'pre', 'code', 'samp', 'kbd',
+                'q', 'blockquote', 'abbr', 'cite',
+                'table', 'thead', 'tbody', 'th', 'tr', 'td',
+                'a[href|target|rel|id]',
+                'img[src|title|alt|width|height|style]'
+            );
+            $config = \HTMLPurifier_Config::createDefault();
+            $config->set('HTML.Allowed', implode(',', $elements));
+            $config->set('Attr.EnableID', true);
+            $config->set('Attr.AllowedFrameTargets', ['_blank']);
+            $purifier = new \HTMLPurifier($config);
+            $readme = $purifier->purify($readme);
+
+            $dom = new \DOMDocument();
+            $dom->loadHTML('<?xml encoding="UTF-8">' . $readme);
+
+            // Links can not be trusted, mark them nofollow and convert relative to absolute links
+            $links = $dom->getElementsByTagName('a');
+            foreach ($links as $link) {
+                $link->setAttribute('rel', 'nofollow');
+                if ('#' === substr($link->getAttribute('href'), 0, 1)) {
+                    $link->setAttribute('href', '#user-content-'.substr($link->getAttribute('href'), 1));
+                } elseif (false === strpos($link->getAttribute('href'), '//')) {
+                    $link->setAttribute('href', 'https://github.com/'.$owner.'/'.$repo.'/blob/HEAD/'.$link->getAttribute('href'));
+                }
+            }
+
+            // convert relative to absolute images
+            $images = $dom->getElementsByTagName('img');
+            foreach ($images as $img) {
+                if (false === strpos($img->getAttribute('src'), '//')) {
+                    $img->setAttribute('src', 'https://raw.github.com/'.$owner.'/'.$repo.'/HEAD/'.$img->getAttribute('src'));
+                }
+            }
+
+            // remove first title as it's usually the project name which we don't need
+            if ($dom->getElementsByTagName('h1')->length) {
+                $first = $dom->getElementsByTagName('h1')->item(0);
+                $first->parentNode->removeChild($first);
+            } elseif ($dom->getElementsByTagName('h2')->length) {
+                $first = $dom->getElementsByTagName('h2')->item(0);
+                $first->parentNode->removeChild($first);
+            }
+
+            $readme = $dom->saveHTML();
+            $readme = substr($readme, strpos($readme, '<body>')+6);
+            $readme = substr($readme, 0, strrpos($readme, '</body>'));
+
+            $package->setReadme($readme);
+        }
+
+        if (!empty($repoData['language'])) {
+            $package->setLanguage($repoData['language']);
+        }
+        if (isset($repoData['stargazers_count'])) {
+            $package->setGitHubStars($repoData['stargazers_count']);
+        }
+        if (isset($repoData['subscribers_count'])) {
+            $package->setGitHubWatches($repoData['subscribers_count']);
+        }
+        if (isset($repoData['network_count'])) {
+            $package->setGitHubForks($repoData['network_count']);
+        }
+        if (isset($repoData['open_issues_count'])) {
+            $package->setGitHubOpenIssues($repoData['open_issues_count']);
+        }
+    }
+
+    private function sanitize($str)
+    {
+        // remove escape chars
+        $str = preg_replace("{\x1B(?:\[.)?}u", '', $str);
+
+        return preg_replace("{[\x01-\x1A]}u", '', $str);
     }
 }
