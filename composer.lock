@@ -874,7 +874,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "30729edacb8fa181ba9f7453e97f33263b3887a9"
+                "reference": "3feeaf7eba8b68a2779344c32d5233232f1534b4"
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -904,7 +904,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2016-03-21 13:00:33"
+            "time": "2016-03-21 18:40:48"
         },
         {
             "name": "ezyang/htmlpurifier",
