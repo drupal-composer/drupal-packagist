@@ -12,12 +12,13 @@
 
 namespace Packagist\WebBundle\Entity;
 
+use Composer\Factory;
+use Composer\IO\NullIO;
+use Composer\Repository\VcsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ExecutionContextInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Composer\IO\NullIO;
-use Composer\Factory;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Drupal\ParseComposer\Repository as DrupalRepository;
 use Composer\Repository\RepositoryManager;
 use Composer\Repository\Vcs\GitHubDriver;
@@ -26,15 +27,16 @@ use Composer\Repository\Vcs\GitHubDriver;
  * @ORM\Entity(repositoryClass="Packagist\WebBundle\Entity\PackageRepository")
  * @ORM\Table(
  *     name="package",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="name_idx", columns={"name"})},
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="package_name_idx", columns={"name"})},
  *     indexes={
  *         @ORM\Index(name="indexed_idx",columns={"indexedAt"}),
  *         @ORM\Index(name="crawled_idx",columns={"crawledAt"}),
  *         @ORM\Index(name="dumped_idx",columns={"dumpedAt"})
  *     }
  * )
- * @Assert\Callback(methods={"isPackageUnique"})
- * @Assert\Callback(methods={"isRepositoryValid"}, groups={"Update", "Default"})
+ * @Assert\Callback(callback="isPackageUnique")
+ * @Assert\Callback(callback="isVendorWritable")
+ * @Assert\Callback(callback="isRepositoryValid", groups={"Update", "Default"})
  * @author Jordi Boggiano <j.boggiano@seld.be>
  */
 class Package
@@ -49,7 +51,7 @@ class Package
     /**
      * Unique package name
      *
-     * @ORM\Column()
+     * @ORM\Column(length=191)
      */
     private $name;
 
@@ -62,6 +64,36 @@ class Package
      * @ORM\Column(type="text", nullable=true)
      */
     private $description;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $language;
+
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $readme;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true, name="github_stars")
+     */
+    private $gitHubStars;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true, name="github_watches")
+     */
+    private $gitHubWatches;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true, name="github_forks")
+     */
+    private $gitHubForks;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true, name="github_open_issues")
+     */
+    private $gitHubOpenIssues;
 
     /**
      * @ORM\OneToMany(targetEntity="Packagist\WebBundle\Entity\Version", mappedBy="package")
@@ -158,7 +190,7 @@ class Package
         }
         $maintainers = array();
         foreach ($this->getMaintainers() as $maintainer) {
-            /** @var $maintainer Maintainer */
+            /** @var $maintainer User */
             $maintainers[] = $maintainer->toArray();
         }
         $data = array(
@@ -189,11 +221,20 @@ class Package
         $driver = $this->vcsDriver;
         if (!is_object($driver)) {
             if (preg_match('{https?://.+@}', $this->repository)) {
-                $context->addViolationAt($property, 'URLs with user@host are not supported, use a read-only public URL', array(), null);
+                $context->buildViolation('URLs with user@host are not supported, use a read-only public URL')
+                    ->atPath($property)
+                    ->addViolation()
+                ;
             } elseif (is_string($this->vcsDriverError)) {
-                $context->addViolationAt($property, 'Uncaught Exception: '.$this->vcsDriverError, array(), null);
+                $context->buildViolation('Uncaught Exception: '.$this->vcsDriverError)
+                    ->atPath($property)
+                    ->addViolation()
+                ;
             } else {
-                $context->addViolationAt($property, 'No valid/supported repository was found at the given URL', array(), null);
+                $context->buildViolation('No valid/supported repository was found at the given URL')
+                    ->atPath($property)
+                    ->addViolation()
+                ;
             }
             return;
         }
@@ -201,17 +242,34 @@ class Package
             $information = $driver->getComposerInformation($driver->getRootIdentifier());
 
             if (false === $information) {
-                $context->addViolationAt($property, 'No composer.json was found in the '.$driver->getRootIdentifier().' branch.', array(), null);
+                $context->buildViolation('No composer.json was found in the '.$driver->getRootIdentifier().' branch.')
+                    ->atPath($property)
+                    ->addViolation()
+                ;
                 return;
             }
 
             if (empty($information['name'])) {
-                $context->addViolationAt($property, 'The package name was not found in the composer.json, make sure there is a name present.', array(), null);
+                $context->buildViolation('The package name was not found in the composer.json, make sure there is a name present.')
+                    ->atPath($property)
+                    ->addViolation()
+                ;
                 return;
             }
 
             if (!preg_match('{^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9]([_.-]?[a-z0-9]+)*$}i', $information['name'])) {
-                $context->addViolationAt($property, 'The package name '.$information['name'].' is invalid, it should have a vendor name, a forward slash, and a package name. The vendor and package name can be words separated by -, . or _. The complete name should match "[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9]([_.-]?[a-z0-9]+)*".', array(), null);
+                $context->buildViolation('The package name '.$information['name'].' is invalid, it should have a vendor name, a forward slash, and a package name. The vendor and package name can be words separated by -, . or _. The complete name should match "[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9]([_.-]?[a-z0-9]+)*".')
+                    ->atPath($property)
+                    ->addViolation()
+                ;
+                return;
+            }
+
+            if (preg_match('{\.json$}', $information['name'])) {
+                $context->buildViolation('The package name '.$information['name'].' is invalid, package names can not end in .json, consider renaming it or perhaps using a -json suffix instead.')
+                    ->atPath($property)
+                    ->addViolation()
+                ;
                 return;
             }
 
@@ -219,14 +277,23 @@ class Package
                 $suggestName = preg_replace('{(?:([a-z])([A-Z])|([A-Z])([A-Z][a-z]))}', '\\1\\3-\\2\\4', $information['name']);
                 $suggestName = strtolower($suggestName);
 
-                $context->addViolationAt($property, 'The package name '.$information['name'].' is invalid, it should not contain uppercase characters. We suggest using '.$suggestName.' instead.');
+                $context->buildViolation('The package name '.$information['name'].' is invalid, it should not contain uppercase characters. We suggest using '.$suggestName.' instead.')
+                    ->atPath($property)
+                    ->addViolation()
+                ;
                 return;
             }
         } catch (\Exception $e) {
-            $context->addViolationAt($property, 'We had problems parsing your composer.json file, the parser reports: '.$e->getMessage(), array(), null);
+            $context->buildViolation('We had problems parsing your composer.json file, the parser reports: '.$e->getMessage())
+                ->atPath($property)
+                ->addViolation()
+            ;
         }
         if (null === $this->getName()) {
-            $context->addViolationAt($property, 'An unexpected error has made our parser fail to find a package name in your repository, if you think this is incorrect please try again', array(), null);
+            $context->buildViolation('An unexpected error has made our parser fail to find a package name in your repository, if you think this is incorrect please try again')
+                ->atPath($property)
+                ->addViolation()
+            ;
         }
     }
 
@@ -244,7 +311,26 @@ class Package
     {
         try {
             if ($this->entityRepository->findOneByName($this->name)) {
-                $context->addViolationAt('repository', 'A package with the name <a href="'.$this->router->generate('view_package', array('name' => $this->name)).'">'.$this->name.'</a> already exists.', array(), null);
+                $context->buildViolation('A package with the name <a href="'.$this->router->generate('view_package', array('name' => $this->name)).'">'.$this->name.'</a> already exists.')
+                    ->atPath('repository')
+                    ->addViolation()
+                ;
+            }
+        } catch (\Doctrine\ORM\NoResultException $e) {}
+    }
+
+    public function isVendorWritable(ExecutionContextInterface $context)
+    {
+        try {
+            $vendor = $this->getVendor();
+            if ($vendor && $this->entityRepository->isVendorTaken($vendor, reset($this->maintainers))) {
+                $context->buildViolation('The vendor is already taken by someone else. '
+                        . 'You may ask them to add your package and give you maintainership access. '
+                        . 'The packages already in that vendor namespace can be found at '
+                        . '<a href="'.$this->router->generate('view_vendor', array('vendor' => $vendor)).'">'.$vendor.'</a>')
+                    ->atPath('repository')
+                    ->addViolation()
+                ;
             }
         } catch (\Doctrine\ORM\NoResultException $e) {}
     }
@@ -320,6 +406,110 @@ class Package
     }
 
     /**
+     * Set language
+     *
+     * @param string $language
+     */
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+    }
+
+    /**
+     * Get language
+     *
+     * @return string
+     */
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    /**
+     * Set readme
+     *
+     * @param string $readme
+     */
+    public function setReadme($readme)
+    {
+        $this->readme = $readme;
+    }
+
+    /**
+     * Get readme
+     *
+     * @return string
+     */
+    public function getReadme()
+    {
+        return $this->readme;
+    }
+
+    /**
+     * @param int $val
+     */
+    public function setGitHubStars($val)
+    {
+        $this->gitHubStars = $val;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGitHubStars()
+    {
+        return $this->gitHubStars;
+    }
+
+    /**
+     * @param int $val
+     */
+    public function setGitHubWatches($val)
+    {
+        $this->gitHubWatches = $val;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGitHubWatches()
+    {
+        return $this->gitHubWatches;
+    }
+
+    /**
+     * @param int $val
+     */
+    public function setGitHubForks($val)
+    {
+        $this->gitHubForks = $val;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGitHubForks()
+    {
+        return $this->gitHubForks;
+    }
+
+    /**
+     * @param int $val
+     */
+    public function setGitHubOpenIssues($val)
+    {
+        $this->gitHubOpenIssues = $val;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGitHubOpenIssues()
+    {
+        return $this->gitHubOpenIssues;
+    }
+
+    /**
      * Set createdAt
      *
      * @param \DateTime $createdAt
@@ -353,6 +543,7 @@ class Package
             return;
         }
 
+        $repoUrl = preg_replace('{^git@github.com:}i', 'https://github.com/', $repoUrl);
         $this->repository = $repoUrl;
 
         // avoid user@host URLs
@@ -398,7 +589,7 @@ class Package
     /**
      * Add versions
      *
-     * @param \Packagist\WebBundle\Entity\Version $versions
+     * @param Version $versions
      */
     public function addVersions(Version $versions)
     {
@@ -513,7 +704,7 @@ class Package
     /**
      * Add maintainers
      *
-     * @param \Packagist\WebBundle\Entity\User $maintainer
+     * @param User $maintainer
      */
     public function addMaintainer(User $maintainer)
     {
@@ -620,5 +811,21 @@ class Package
     public function setReplacementPackage($replacementPackage)
     {
         $this->replacementPackage = $replacementPackage;
+    }
+
+    public static function sortVersions($a, $b)
+    {
+        $aVersion = $a->getNormalizedVersion();
+        $bVersion = $b->getNormalizedVersion();
+        $aVersion = preg_replace('{^dev-.*}', '0.0.0-alpha', $aVersion);
+        $bVersion = preg_replace('{^dev-.*}', '0.0.0-alpha', $bVersion);
+
+        // equal versions are sorted by date
+        if ($aVersion === $bVersion) {
+            return $b->getReleasedAt() > $a->getReleasedAt() ? 1 : -1;
+        }
+
+        // the rest is sorted by version
+        return version_compare($bVersion, $aVersion);
     }
 }

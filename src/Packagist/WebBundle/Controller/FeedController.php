@@ -13,16 +13,18 @@
 namespace Packagist\WebBundle\Controller;
 
 use Doctrine\ORM\QueryBuilder;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
-use Pagerfanta\Pagerfanta;
-use Zend\Feed\Writer\Entry;
-use Zend\Feed\Writer\Feed;
 use Packagist\WebBundle\Entity\Package;
 use Packagist\WebBundle\Entity\Version;
-use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Zend\Feed\Writer\Entry;
+use Zend\Feed\Writer\Feed;
 
 /**
  * @author Rafael Dohms <rafael@doh.ms>
@@ -48,22 +50,23 @@ class FeedController extends Controller
      * )
      * @Method({"GET"})
      */
-    public function packagesAction()
+    public function packagesAction(Request $req)
     {
-        /** @var $repo \Packagist\WebBundle\Entity\VersionRepository */
+        /** @var $repo \Packagist\WebBundle\Entity\PackageRepository */
         $repo = $this->getDoctrine()->getRepository('PackagistWebBundle:Package');
         $packages = $this->getLimitedResults(
             $repo->getQueryBuilderForNewestPackages()
         );
 
         $feed = $this->buildFeed(
+            $req,
             'Newly Submitted Packages',
             'Latest packages submitted to Packagist.',
-            $this->generateUrl('browse', array(), true),
+            $this->generateUrl('browse', array(), UrlGeneratorInterface::ABSOLUTE_URL),
             $packages
         );
 
-        return $this->buildResponse($feed);
+        return $this->buildResponse($req, $feed);
     }
 
     /**
@@ -74,22 +77,23 @@ class FeedController extends Controller
      * )
      * @Method({"GET"})
      */
-    public function releasesAction()
+    public function releasesAction(Request $req)
     {
-        /** @var $repo \Packagist\WebBundle\Entity\PackageRepository */
+        /** @var $repo \Packagist\WebBundle\Entity\VersionRepository */
         $repo = $this->getDoctrine()->getRepository('PackagistWebBundle:Version');
         $packages = $this->getLimitedResults(
             $repo->getQueryBuilderForLatestVersionWithPackage()
         );
 
         $feed = $this->buildFeed(
+            $req,
             'New Releases',
             'Latest releases of all packages.',
-            $this->generateUrl('browse', array(), true),
+            $this->generateUrl('browse', array(), UrlGeneratorInterface::ABSOLUTE_URL),
             $packages
         );
 
-        return $this->buildResponse($feed);
+        return $this->buildResponse($req, $feed);
     }
 
     /**
@@ -100,22 +104,23 @@ class FeedController extends Controller
      * )
      * @Method({"GET"})
      */
-    public function vendorAction($vendor)
+    public function vendorAction(Request $req, $vendor)
     {
-        /** @var $repo \Packagist\WebBundle\Entity\PackageRepository */
+        /** @var $repo \Packagist\WebBundle\Entity\VersionRepository */
         $repo = $this->getDoctrine()->getRepository('PackagistWebBundle:Version');
         $packages = $this->getLimitedResults(
             $repo->getQueryBuilderForLatestVersionWithPackage($vendor)
         );
 
         $feed = $this->buildFeed(
+            $req,
             "$vendor packages",
             "Latest packages updated on Packagist of $vendor.",
-            $this->generateUrl('view_vendor', array('vendor' => $vendor), true),
+            $this->generateUrl('view_vendor', array('vendor' => $vendor), UrlGeneratorInterface::ABSOLUTE_URL),
             $packages
         );
 
-        return $this->buildResponse($feed);
+        return $this->buildResponse($req, $feed);
     }
 
     /**
@@ -126,22 +131,23 @@ class FeedController extends Controller
      * )
      * @Method({"GET"})
      */
-    public function packageAction($package)
+    public function packageAction(Request $req, $package)
     {
-        /** @var $repo \Packagist\WebBundle\Entity\PackageRepository */
+        /** @var $repo \Packagist\WebBundle\Entity\VersionRepository */
         $repo = $this->getDoctrine()->getRepository('PackagistWebBundle:Version');
         $packages = $this->getLimitedResults(
             $repo->getQueryBuilderForLatestVersionWithPackage(null, $package)
         );
 
         $feed = $this->buildFeed(
+            $req,
             "$package releases",
             "Latest releases on Packagist of $package.",
-            $this->generateUrl('view_package', array('name' => $package), true),
+            $this->generateUrl('view_package', array('name' => $package), UrlGeneratorInterface::ABSOLUTE_URL),
             $packages
         );
 
-        return $this->buildResponse($feed);
+        return $this->buildResponse($req, $feed);
     }
 
     /**
@@ -171,7 +177,7 @@ class FeedController extends Controller
      *
      * @return \Zend\Feed\Writer\Feed
      */
-    protected function buildFeed($title, $description, $url, $items)
+    protected function buildFeed(Request $req, $title, $description, $url, $items)
     {
         $feed = new Feed();
         $feed->setTitle($title);
@@ -185,15 +191,17 @@ class FeedController extends Controller
             $feed->addEntry($entry);
         }
 
-        if ($this->getRequest()->getRequestFormat() == 'atom') {
+        if ($req->getRequestFormat() == 'atom') {
             $feed->setFeedLink(
-                $this->getRequest()->getUri(),
-                $this->getRequest()->getRequestFormat()
+                $req->getUri(),
+                $req->getRequestFormat()
             );
         }
 
         if ($feed->count()) {
             $feed->setDateModified($feed->getEntry(0)->getDateModified());
+        } else {
+            $feed->setDateModified(new \DateTime());
         }
 
         return $feed;
@@ -228,7 +236,7 @@ class FeedController extends Controller
             $this->generateUrl(
                 'view_package',
                 array('name' => $package->getName()),
-                true
+                UrlGeneratorInterface::ABSOLUTE_URL
             )
         );
         $entry->setId($package->getName());
@@ -269,9 +277,9 @@ class FeedController extends Controller
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    protected function buildResponse(Feed $feed)
+    protected function buildResponse(Request $req, Feed $feed)
     {
-        $content = $feed->export($this->getRequest()->getRequestFormat());
+        $content = $feed->export($req->getRequestFormat());
 
         $response = new Response($content, 200);
         $response->setSharedMaxAge(3600);

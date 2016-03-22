@@ -13,11 +13,12 @@
 namespace Packagist\WebBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="link_require")
+ * @ORM\Table(name="link_require", indexes={
+ *     @ORM\Index(name="link_require_package_name_idx",columns={"version_id", "packageName"})
+ * })
  * @author Jordi Boggiano <j.boggiano@seld.be>
  */
 class RequireLink extends PackageLink

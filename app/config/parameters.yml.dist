@@ -4,6 +4,7 @@ parameters:
     database_name: packagist
     database_user: root
     database_password:
+    database_name_test: packagist_test
 
     mailer_transport:
     mailer_host: localhost
@@ -17,6 +18,13 @@ parameters:
     # router.request_context.scheme: https
 
     redis_dsn: redis://localhost/1
+    redis_dsn_test: redis://127.0.0.1/14
+    redis_session_dsn: redis://localhost/2
+
+    solr_host: 127.0.0.1
+    solr_port: 8983
+    solr_path: /solr
+    solr_core: collection1
 
     locale: en
 
@@ -24,8 +32,8 @@ parameters:
         ga_key:
 
     # set those to values obtained by creating an application at https://github.com/settings/applications
-    github.client_id:
-    github.client_secret:
+    github.client_id: CHANGE_ME_IN_PROD
+    github.client_secret: CHANGE_ME_IN_PROD
 
         # -- performance features --
         # set both to apc to optimize things if it is available

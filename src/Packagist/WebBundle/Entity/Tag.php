@@ -12,16 +12,15 @@
 
 namespace Packagist\WebBundle\Entity;
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\EntityManager;
 
 /**
  * @ORM\Entity
  * @ORM\Table(
  *     name="tag",
- *     uniqueConstraints={@ORM\UniqueConstraint(name="name_idx", columns={"name"})}
+ *     uniqueConstraints={@ORM\UniqueConstraint(name="tag_name_idx", columns={"name"})}
  * )
  * @author Jordi Boggiano <j.boggiano@seld.be>
  */
@@ -35,7 +34,7 @@ class Tag
     private $id;
 
     /**
-     * @ORM\Column
+     * @ORM\Column(length=191)
      * @Assert\NotBlank()
      */
     private $name;
@@ -52,10 +51,10 @@ class Tag
 
     /**
      * @param \Doctrine\ORM\EntityManager $em
-     * @param                             $name
+     * @param string                      $name
      * @param bool                        $create
      *
-     * @return mixed|Tag
+     * @return Tag
      * @throws \Doctrine\ORM\NoResultException
      */
     public static function getByName(EntityManager $em, $name, $create = false)
@@ -103,7 +102,7 @@ class Tag
     /**
      * Add versions
      *
-     * @param \Packagist\WebBundle\Entity\Version $versions
+     * @param Version $versions
      */
     public function addVersions(Version $versions)
     {
@@ -113,7 +112,7 @@ class Tag
     /**
      * Get versions
      *
-     * @return \Doctrine\Common\Collections\Collection $versions
+     * @return Version[]
      */
     public function getVersions()
     {
@@ -122,6 +121,6 @@ class Tag
 
     public function __toString()
     {
-        return $this->name;
+        return (string) $this->name;
     }
 }

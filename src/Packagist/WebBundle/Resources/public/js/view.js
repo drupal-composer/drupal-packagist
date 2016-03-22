@@ -1,35 +1,72 @@
 /*jslint nomen: true, browser: true*/
-(function ($, humane, ZeroClipboard) {
+(function ($, humane) {
     "use strict";
-    $('#add-maintainer').click(function (e) {
+
+    var versionCache = {},
+        ongoingRequest = false;
+
+    $('#add-maintainer').on('click', function (e) {
         $('#remove-maintainer-form').addClass('hidden');
-        $('#add-maintainer-form').toggleClass('hidden');
+        $('#add-maintainer-form').removeClass('hidden');
         e.preventDefault();
     });
-    $('#remove-maintainer').click(function (e) {
+    $('#remove-maintainer').on('click', function (e) {
         $('#add-maintainer-form').addClass('hidden');
-        $('#remove-maintainer-form').toggleClass('hidden');
+        $('#remove-maintainer-form').removeClass('hidden');
         e.preventDefault();
     });
-    $('.package .version h1').click(function (e) {
-        e.preventDefault();
-        $(this).siblings('.details-toggler').click();
-    });
-    $('.package .details-toggler').click(function () {
+
+    $('.package .details-toggler').on('click', function () {
         var target = $(this);
-        target.toggleClass('open')
-            .prev().toggleClass('open');
-        if (target.attr('data-load-more')) {
+
+        if (versionCache[target.attr('data-version-id')]) {
+            $('.package .version-details').html(versionCache[target.attr('data-version-id')]);
+        } else if (target.attr('data-load-more')) {
+            if (ongoingRequest) { // TODO cancel previous requests instead?
+                return;
+            }
+            ongoingRequest = true;
+            $('.package .version-details').addClass('loading');
             $.ajax({
                 url: target.attr('data-load-more'),
                 dataType: 'json',
                 success: function (data) {
-                    target.attr('data-load-more', '')
-                        .prev().html(data.content);
+                    versionCache[target.attr('data-version-id')] = data.content;
+                    ongoingRequest = false;
+                    $('.package .version-details')
+                        .removeClass('loading')
+                        .html(data.content);
                 }
             });
         }
+
+        $('.package .versions .open').removeClass('open');
+        target.addClass('open');
     });
+
+    // initializer for #<version-id> present on page load
+    (function () {
+        var hash = document.location.hash;
+        if (hash.length > 1) {
+            hash = hash.substring(1);
+            $('.package .details-toggler[data-version-id="'+hash+'"]').click();
+        }
+    }());
+
+    function dispatchAjaxForm(form, success, className) {
+        var options = {
+            cache: false,
+            success: success,
+            data: $(form).serializeArray(),
+            type: $(form).attr('method'),
+            url: $(form).attr('action')
+        };
+        if ($(form).is('.' + className)) {
+            return;
+        }
+        $.ajax(options).complete(function () { $(form).removeClass(className); });
+        $(form).addClass(className);
+    }
 
     function forceUpdatePackage(e, updateAll) {
         var submit = $('input[type=submit]', '.package .force-update'), data;
@@ -43,26 +80,30 @@
         if (updateAll) {
             data.push({name: 'updateAll', value: '1'});
         }
+        if (e && e.shiftKey) {
+            data.push({name: 'showOutput', value: '1'});
+        }
         $.ajax({
             url: $('.package .force-update').attr('action'),
             dataType: 'json',
             cache: false,
             data: data,
-            type: 'PUT',
+            type: $('.package .force-update').attr('method'),
             success: function () {
-                window.location.href = window.location.href;
+                document.location.reload(true);
             },
             context: $('.package .force-update')[0]
         }).complete(function () { submit.removeClass('loading'); });
         submit.addClass('loading');
     }
-    $('.package .force-update').submit(forceUpdatePackage);
-    $('.package .mark-favorite').click(function (e) {
+    $('.package .force-update').on('submit', forceUpdatePackage);
+    $('.package .force-update').on('click', forceUpdatePackage);
+    $('.package .mark-favorite').on('click', function (e) {
         var options = {
             dataType: 'json',
             cache: false,
             success: function () {
-                $(this).toggleClass('icon-star icon-star-empty');
+                $(this).toggleClass('is-starred');
             },
             context: this
         };
@@ -70,7 +111,7 @@
         if ($(this).is('.loading')) {
             return;
         }
-        if ($(this).is('.icon-star')) {
+        if ($(this).is('.is-starred')) {
             options.type = 'DELETE';
             options.url = $(this).data('remove-url');
         } else {
@@ -81,20 +122,32 @@
         $.ajax(options).complete(function () { $(this).removeClass('loading'); });
         $(this).addClass('loading');
     });
-    $('.package .delete').submit(function (e) {
+    $('.package .delete').on('submit', function (e) {
         e.preventDefault();
         if (window.confirm('Are you sure?')) {
-            e.target.submit();
+            dispatchAjaxForm(this, function () {
+                humane.log('Package successfully deleted', {timeout: 0, clickToClose: true});
+                setTimeout(function () {
+                    document.location.href = document.location.href.replace(/\/[^\/]+$/, '/');
+                })
+            }, 'request-sent');
         }
     });
-    $('.package .delete-version').click(function (e) {
-        e.stopImmediatePropagation();
-    });
-    $('.package .delete-version').submit(function (e) {
+    $('.package .delete-version .submit').on('click', function (e) {
         e.preventDefault();
         e.stopImmediatePropagation();
+        $(e.target).closest('form').submit();
+    });
+
+    $('.package .delete-version').on('submit', function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        var form = this;
         if (window.confirm('Are you sure?')) {
-            e.target.submit();
+            dispatchAjaxForm(this, function () {
+                humane.log('Version successfully deleted', {timeout: 3000, clickToClose: true});
+                $(form).closest('.version').remove();
+            }, 'request-sent');
         }
     });
     $('.package').on('click', '.requireme input', function () {
@@ -104,9 +157,25 @@
         forceUpdatePackage(null, true);
     }
 
-    ZeroClipboard.setMoviePath("/js/libs/ZeroClipboard.swf");
-    var clip = new ZeroClipboard.Client("#copy");
-    clip.on("complete", function () {
-        humane.log("Copied");
+    $('.readme a').on('click', function (e) {
+        var targetEl,
+            href = e.target.getAttribute('href');
+
+        if (href.substr(0, 1) === '#') {
+            targetEl = $(href);
+            if (targetEl.length) {
+                window.scrollTo(0, targetEl.offset().top - 70);
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+        }
     });
-}(jQuery, humane, ZeroClipboard));
+
+    var versionsList = $('.package .versions')[0];
+    if (versionsList.offsetHeight < versionsList.scrollHeight) {
+        $('.package .versions-expander').removeClass('hidden').on('click', function () {
+            $(this).addClass('hidden');
+            $(versionsList).css('max-height', 'inherit');
+        });
+    }
+}(jQuery, humane));

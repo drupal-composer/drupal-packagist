@@ -21,8 +21,8 @@ use Predis\Client;
  */
 class DownloadManager
 {
-
     protected $redis;
+    protected $redisCommandLoaded = false;
 
     public function __construct(Client $redis)
     {
@@ -112,9 +112,14 @@ class DownloadManager
      * @param \Packagist\WebBundle\Entity\Package|int $package
      * @param \Packagist\WebBundle\Entity\Version|int $version
      */
-    public function addDownload($package,  $version)
+    public function addDownload($package, $version)
     {
         $redis = $this->redis;
+
+        if (!$this->redisCommandLoaded) {
+            $redis->getProfile()->defineCommand('downloadsIncr', 'Packagist\Redis\DownloadsIncr');
+            $this->redisCommandLoaded = true;
+        }
 
         if ($package instanceof Package) {
             $package = $package->getId();
@@ -124,15 +129,14 @@ class DownloadManager
             $version = $version->getId();
         }
 
-        $redis->incr('downloads');
-
-        $redis->incr('dl:'.$package);
-        $redis->incr('dl:'.$package.':'.date('Ym'));
-        $redis->incr('dl:'.$package.':'.date('Ymd'));
-
-        $redis->incr('dl:'.$package.'-'.$version);
-        $redis->incr('dl:'.$package.'-'.$version.':'.date('Ym'));
-        $redis->incr('dl:'.$package.'-'.$version.':'.date('Ymd'));
+        $redis->downloadsIncr(
+            'downloads',
+            'dl:'.$package,
+            'dl:'.$package.':'.date('Ym'),
+            'dl:'.$package.':'.date('Ymd'),
+            'dl:'.$package.'-'.$version,
+            'dl:'.$package.'-'.$version.':'.date('Ym'),
+            'dl:'.$package.'-'.$version.':'.date('Ymd')
+        );
     }
-
 }

@@ -12,9 +12,9 @@
 
 namespace Packagist\WebBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Response;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -28,5 +28,13 @@ class AboutController extends Controller
     public function aboutAction()
     {
         return array();
+    }
+
+    /**
+     * @Route("/about-composer")
+     */
+    public function aboutComposerFallbackAction()
+    {
+        return new RedirectResponse('https://getcomposer.org/', 301);
     }
 }

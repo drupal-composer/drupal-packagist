@@ -20,46 +20,47 @@
           "email": "contact@packagist.org"
     },
     "autoload": {
-        "psr-0": {
-            "Packagist": "src/",
+        "psr-4": {
+            "Packagist\\": "src/Packagist/",
             "DrupalPackagist": "src/"
-        }
+        },
+        "classmap": [ "app/AppKernel.php", "app/AppCache.php" ]
     },
     "require": {
-        "php": ">=5.3.3",
-        "symfony/symfony": "2.3.*",
-        "doctrine/migrations": "~1.0.0@dev",
-        "doctrine/doctrine-migrations-bundle": "~2.1.0@dev",
-        "doctrine/orm": "~2.3",
-        "doctrine/doctrine-bundle": "1.2.*",
-        "twig/extensions": "~1.0",
-        "symfony/assetic-bundle": "2.3.*",
-        "symfony/swiftmailer-bundle": "2.3.*",
-        "symfony/monolog-bundle": "~2.4",
-        "sensio/distribution-bundle": "2.3.*",
-        "sensio/framework-extra-bundle": "2.3.*",
-        "sensio/generator-bundle": "2.3.*",
-        "jms/security-extra-bundle": "1.5.*",
-        "jms/di-extra-bundle": "1.4.*",
+        "php": ">=5.6",
+        "symfony/symfony": "^2.8",
+        "doctrine/orm": "^2.4",
+        "doctrine/doctrine-bundle": "^1.2",
+        "twig/extensions": "^1.0",
+        "symfony/swiftmailer-bundle": "^2.3",
+        "symfony/monolog-bundle": "^2.4",
+        "sensio/distribution-bundle": "^5.0",
+        "sensio/framework-extra-bundle": "^3.0",
+        "sensio/generator-bundle": "^3.0",
+        "jms/security-extra-bundle": "^1.5",
+        "jms/di-extra-bundle": "^1.4",
 
-        "composer/composer": "1.0.x-dev",
-        "friendsofsymfony/user-bundle": "1.*",
-        "hwi/oauth-bundle": "~0.4@dev",
-        "nelmio/solarium-bundle": "~1.0",
-        "nelmio/security-bundle": "~1.0",
-        "predis/predis": "0.8.*",
-        "snc/redis-bundle": "~1.1@dev",
-        "white-october/pagerfanta-bundle": "~1.0",
-        "zendframework/zend-feed": "2.0.*",
-        "zendframework/zend-servicemanager": "2.0.*",
-        "zendframework/zend-uri": "2.0.*",
-        "zendframework/zend-version": "2.0.*",
-        "guzzle/guzzle": "~3.7",
+        "composer/composer": "^1.0@dev",
+        "friendsofsymfony/user-bundle": "^2.0@dev",
+        "hwi/oauth-bundle": "^0.4",
+        "nelmio/solarium-bundle": "^1.0",
+        "nelmio/security-bundle": "^1.0",
+        "predis/predis": "^1.0",
+        "snc/redis-bundle": "^1.1",
+        "white-october/pagerfanta-bundle": "^1.0",
+        "zendframework/zend-feed": "^2.0",
+        "zendframework/zend-servicemanager": "^2.0",
+        "zendframework/zend-uri": "^2.0",
+        "zendframework/zend-version": "^2.0",
+        "pagerfanta/pagerfanta": "^1.0",
+        "knplabs/knp-menu-bundle": "^2.1",
+        "ezyang/htmlpurifier": "^4.6",
         "drupal/parse-composer": "dev-master@dev",
-        "oldsound/rabbitmq-bundle": "1.4.*",
-        "kriswallsmith/assetic": "~1.2@alpha",
-        "pagerfanta/pagerfanta": "~1.0",
-        "fastfeed/fastfeed": "~0.3"
+        "oldsound/rabbitmq-bundle": "1.4.*"
+    },
+    "_": ["fos user bundle 2.0.0 tag needed"],
+    "require-dev": {
+        "symfony/phpunit-bridge": "^2.7 || ^3.0"
     },
     "scripts": {
         "post-install-cmd": [
@@ -78,10 +79,6 @@
         "symfony-web-dir": "web"
     },
     "repositories": [
-        {
-            "type": "composer",
-            "url": "http://packages.zendframework.com/"
-        },
         {
             "type": "git",
             "url": "https://github.com/drupal-composer/drupal-parse-composer.git"

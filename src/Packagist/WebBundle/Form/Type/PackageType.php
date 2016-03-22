@@ -12,9 +12,11 @@
 
 namespace Packagist\WebBundle\Form\Type;
 
+use Packagist\WebBundle\Entity\Package;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -23,17 +25,25 @@ class PackageType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('repository');
-    }
-
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'Packagist\WebBundle\Entity\Package',
+        $builder->add('repository', TextType::class, array(
+            'label' => 'Repository URL (Git/Svn/Hg)',
+            'attr'  => array(
+                'placeholder' => 'i.e.: git://github.com/composer/composer.git',
+            )
         ));
     }
 
-    public function getName()
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => Package::class,
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
     {
         return 'package';
     }

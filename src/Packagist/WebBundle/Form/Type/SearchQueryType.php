@@ -12,9 +12,12 @@
 
 namespace Packagist\WebBundle\Form\Type;
 
+use Packagist\WebBundle\Form\Model\SearchQuery;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\SearchType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Igor Wiedler <igor@wiedler.ch>
@@ -23,18 +26,28 @@ class SearchQueryType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('query', 'search');
-    }
-
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'Packagist\WebBundle\Form\Model\SearchQuery',
-            'csrf_protection' => false,
+        $builder->add('query', SearchType::class);
+        $builder->add('orderBys', CollectionType::class, array(
+            'entry_type' => OrderByType::class,
+            'allow_add' => true,
+            'allow_delete' => true,
+            'prototype' => false,
         ));
     }
 
-    public function getName()
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'data_class' => SearchQuery::class,
+            'csrf_protection' => false,
+            'method' => 'GET',
+        ));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
     {
         return 'search_query';
     }

@@ -3,14 +3,15 @@
 {% import "PackagistWebBundle::macros.html.twig" as macros %}
 
 {% block content %}
-    <div class="box clearfix package-list">
-        {% block content_title %}<h1>Packages</h1>{% endblock %}
-        {% block list %}
-            {% if packages|length %}
-                {{ macros.listPackages(packages, paginate is not defined or paginate, false, meta|default(null)) }}
-            {% else %}
+    {% block content_title %}<h3 class="title">Packages</h3>{% endblock %}
+
+    {% block list %}
+        {% if packages|length %}
+            {{ macros.listPackages(packages, paginate is not defined or paginate, showAutoUpdateWarning|default(false), meta|default(null)) }}
+        {% else %}
+            <div class="alert alert-danger">
                 <p>No packages found.</p>
-            {% endif %}
-        {% endblock %}
-    </div>
+            </div>
+        {% endif %}
+    {% endblock %}
 {% endblock %}

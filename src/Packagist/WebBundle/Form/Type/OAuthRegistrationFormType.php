@@ -12,9 +12,11 @@
 
 namespace Packagist\WebBundle\Form\Type;
 
+use Packagist\WebBundle\Entity\User;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class OAuthRegistrationFormType extends AbstractType
 {
@@ -22,20 +24,23 @@ class OAuthRegistrationFormType extends AbstractType
     {
         $builder
             ->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
-            ->add('email', 'email', array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
+            ->add('email', EmailType::class, array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
         ;
     }
 
-    public function setDefaultOptions(OptionsResolverInterface $resolver)
+    public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults(array(
-            'data_class' => 'Packagist\WebBundle\Entity\User',
+            'data_class' => User::class,
             'intention'  => 'registration',
             'validation_groups' => array('Default', 'Profile'),
         ));
     }
 
-    public function getName()
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
     {
         return 'packagist_oauth_user_registration';
     }

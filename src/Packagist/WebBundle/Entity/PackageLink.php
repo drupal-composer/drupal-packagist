@@ -13,7 +13,6 @@
 namespace Packagist\WebBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\MappedSuperclass()
@@ -29,12 +28,12 @@ abstract class PackageLink
     private $id;
 
     /**
-     * @ORM\Column()
+     * @ORM\Column(length=191)
      */
     private $packageName;
 
     /**
-     * @ORM\Column()
+     * @ORM\Column(type="text")
      */
     private $packageVersion;
 
@@ -102,7 +101,7 @@ abstract class PackageLink
     /**
      * Set version
      *
-     * @param \Packagist\WebBundle\Entity\Version $version
+     * @param Version $version
      */
     public function setVersion(Version $version)
     {
@@ -112,7 +111,7 @@ abstract class PackageLink
     /**
      * Get version
      *
-     * @return \Packagist\WebBundle\Entity\Version
+     * @return Version
      */
     public function getVersion()
     {

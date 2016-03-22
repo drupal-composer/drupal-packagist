@@ -12,20 +12,21 @@
 
 namespace Packagist\WebBundle\Controller;
 
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Doctrine\ORM\NoResultException;
+use FOS\UserBundle\Model\UserInterface;
+use Packagist\WebBundle\Entity\Package;
+use Packagist\WebBundle\Entity\User;
+use Packagist\WebBundle\Model\RedisAdapter;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Pagerfanta\Pagerfanta;
-use Pagerfanta\Adapter\DoctrineORMAdapter;
-use FOS\UserBundle\Model\UserInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
-use Packagist\WebBundle\Entity\User;
-use Packagist\WebBundle\Entity\Package;
-use Packagist\WebBundle\Model\RedisAdapter;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -48,9 +49,13 @@ class UserController extends Controller
         );
     }
 
+    /**
+     * @param Request $req
+     * @return Response
+     */
     public function myProfileAction(Request $req)
     {
-        $user = $this->container->get('security.context')->getToken()->getUser();
+        $user = $this->container->get('security.token_storage')->getToken()->getUser();
         if (!is_object($user) || !$user instanceof UserInterface) {
             throw new AccessDeniedException('This user does not have access to this section.');
         }
@@ -58,7 +63,7 @@ class UserController extends Controller
         $packages = $this->getUserPackages($req, $user);
 
         return $this->container->get('templating')->renderResponse(
-            'FOSUserBundle:Profile:show.html.'.$this->container->getParameter('fos_user.template.engine'),
+            'FOSUserBundle:Profile:show.html.twig',
             array(
                 'packages' => $packages,
                 'meta' => $this->getPackagesMetadata($packages),
@@ -118,13 +123,11 @@ class UserController extends Controller
      * @ParamConverter("user", options={"mapping": {"name": "username"}})
      * @Method({"POST"})
      */
-    public function postFavoriteAction(User $user)
+    public function postFavoriteAction(Request $req, User $user)
     {
         if ($user->getId() !== $this->getUser()->getId()) {
             throw new AccessDeniedException('You can only change your own favorites');
         }
-
-        $req = $this->getRequest();
 
         $package = $req->request->get('package');
         try {
@@ -157,6 +160,11 @@ class UserController extends Controller
         return new Response('{"status": "success"}', 204);
     }
 
+    /**
+     * @param Request $req
+     * @param User $user
+     * @return Pagerfanta
+     */
     protected function getUserPackages($req, $user)
     {
         $packages = $this->getDoctrine()
