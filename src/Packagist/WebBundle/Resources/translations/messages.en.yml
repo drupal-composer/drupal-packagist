@@ -9,8 +9,10 @@ menu:
     register: Register
     browse_packages: Browse Packages
     twitter: Follow @packagist
+    github: GitHub
     contact: Contact
     stats: Statistics
+    api_doc: API
 
 link_type:
     require: Requires
@@ -19,3 +21,10 @@ link_type:
     conflict: Conflicts
     replace: Replaces
     provide: Provides
+
+'Search packages...': 'Search packages...'
+Sort: 'Sort'
+Order: 'Order'
+Username: 'Username'
+asc: 'asc'
+desc: 'desc'

@@ -1,0 +1,84 @@
+{% extends "PackagistWebBundle::layout.html.twig" %}
+
+{% block content %}
+<section class="row">
+    <section class="col-lg-6 getting-started">
+        <h2 class="title">Getting Started</h2>
+        <div>
+            <h3>Learn about Composer</h3>
+            <p>
+                For getting started with Composer in general, please visit the
+                <a href="https://getcomposer.org/doc/00-intro.md">offical documentation</a>.
+            </p>
+            <h3>Add Drupal Packagist</h3>
+            <p>
+                For being able to add any Drupal project (module, theme, drush
+                extension) to your composer project, you have to add the
+                Drupal Packagist to your root <em>composer.json</em>'s repository section:
+            </p>
+            <pre>
+    {
+      "repositories": [
+        {
+          "type": "composer",
+          "url": "http://packagist.drupal-composer.org"
+        }
+      ]
+    }
+            </pre>
+            <h3>Kickstart</h3>
+            <p>
+                We provide project templates for an easy start. Look at
+                <a href="https://github.com/drupal-composer/drupal-project">drupal-composer/drupal-project</a>
+                for details.
+            </p>
+            <p>
+                Visit <a href="http://drupal-composer.org/">drupal-composer.org</a>
+                for a general overview on the subject.
+            </p>
+        </div>
+    </section>
+
+    <section class="col-lg-6 publishing-packages">
+        <h2 class="title">Drupal 8 & Drupal 7</h2>
+        <div>
+            <p>
+                Basically Drupal Packagist will work for <em>Drupal 8</em> and
+                <em>Drupal 7</em> projects.
+            </p>
+            <h3>Composer installers</h3>
+            <p>
+                In general you will need to add a <a
+                    href="https://github.com/composer/installers">Composer
+                    Installer</a> to your project
+                so modules, themes, profiles and drush extensions are downloaded
+                to
+                the correct directories, dependent on your Drupal installation.
+            </p>
+            <h3>Adding modules, themes, …</h3>
+            <p>
+                Besides that, you can use <code>composer install</code>, <code>composer
+                    require</code>,
+                <code>composer update</code> and <code>composer remove</code>
+                like with
+                any other composer package.
+            </p>
+            <pre>
+   "require": [
+     {
+       "drupal/views": "^7.3.0",
+       "drupal/radix": "7.*",
+       "drupal/master": "7.3.*"
+     }
+   ]
+            </pre>
+            <h3>Documentation</h3>
+            <p>
+                <a href="https://www.drupal.org/node/2404989">Documentation on drupal.org</a> was started
+                but is far from complete. Any help is welcome to improve the
+                situation there.
+            </p>
+        </div>
+    </section>
+</section>
+{% endblock %}

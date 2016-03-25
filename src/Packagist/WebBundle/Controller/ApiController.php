@@ -12,22 +12,21 @@
 
 namespace Packagist\WebBundle\Controller;
 
-use Composer\IO\BufferIO;
+use Composer\Console\HtmlOutputFormatter;
 use Composer\Factory;
-use Composer\Repository\VcsRepository;
-use Composer\Repository\InvalidRepositoryException;
-use Composer\Package\Loader\ValidatingArrayLoader;
+use Composer\IO\BufferIO;
 use Composer\Package\Loader\ArrayLoader;
-use Packagist\WebBundle\Package\Updater;
+use Composer\Package\Loader\ValidatingArrayLoader;
+use Composer\Repository\InvalidRepositoryException;
+use Composer\Repository\VcsRepository;
 use Packagist\WebBundle\Entity\Package;
 use Packagist\WebBundle\Entity\User;
-use Symfony\Component\HttpFoundation\Response;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Console\Output\OutputInterface;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -35,10 +34,10 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 class ApiController extends Controller
 {
     /**
-     * @Template()
      * @Route("/packages.json", name="packages", defaults={"_format" = "json"})
+     * @Method({"GET"})
      */
-    public function packagesAction(Request $req)
+    public function packagesAction()
     {
         // fallback if any of the dumped files exist
         $rootJson = $this->container->getParameter('kernel.root_dir').'/../web/packages_root.json';
@@ -50,39 +49,46 @@ class ApiController extends Controller
             return new Response(file_get_contents($rootJson));
         }
 
-        if ($req->getHost() === 'packagist.org') {
-            $this->get('logger')->alert('packages.json is missing and the fallback controller is being hit');
+        $this->get('logger')->alert('packages.json is missing and the fallback controller is being hit, you need to use app/console packagist:dump');
 
-            return new Response('Horrible misconfiguration or the dumper script messed up', 404);
+        return new Response('Horrible misconfiguration or the dumper script messed up, you need to use app/console packagist:dump', 404);
+    }
+
+    /**
+     * @Route("/api/create-package", name="generic_create", defaults={"_format" = "json"})
+     * @Method({"POST"})
+     */
+    public function createPackageAction(Request $request)
+    {
+        $payload = json_decode($request->getContent(), true);
+        if (!$payload) {
+            return new JsonResponse(array('status' => 'error', 'message' => 'Missing payload parameter'), 406);
         }
-
-        $em = $this->get('doctrine')->getManager();
-
-        gc_enable();
-
-        $packages = $em->getRepository('Packagist\WebBundle\Entity\Package')
-            ->getFullPackages();
-
-        $notifyUrl = $this->generateUrl('track_download', array('name' => 'VND/PKG'));
-
-        $data = array(
-            'notify' => str_replace('VND/PKG', '%package%', $notifyUrl),
-            'packages' => array(),
-        );
-        foreach ($packages as $package) {
-            $versions = array();
-            foreach ($package->getVersions() as $version) {
-                $versions[$version->getVersion()] = $version->toArray();
-                $em->detach($version);
+        $url = $payload['repository']['url'];
+        $package = new Package;
+        $package->setEntityRepository($this->getDoctrine()->getRepository('PackagistWebBundle:Package'));
+        $package->setRouter($this->get('router'));
+        $user = $this->findUser($request);
+        $package->addMaintainer($user);
+        $package->setRepository($url);
+        $errors = $this->get('validator')->validate($package);
+        if (count($errors) > 0) {
+            $errorArray = array();
+            foreach ($errors as $error) {
+                $errorArray[$error->getPropertyPath()] =  $error->getMessage();
             }
-            $data['packages'][$package->getName()] = $versions;
-            $em->detach($package);
+            return new JsonResponse(array('status' => 'error', 'message' => $errorArray), 406);
         }
-        unset($versions, $package, $packages);
+        try {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($package);
+            $em->flush();
+        } catch (\Exception $e) {
+            $this->get('logger')->critical($e->getMessage(), array('exception', $e));
+            return new JsonResponse(array('status' => 'error', 'message' => 'Error saving package'), 500);
+        }
 
-        $response = new Response(json_encode($data), 200);
-        $response->setSharedMaxAge(120);
-        return $response;
+        return new JsonResponse(array('status' => 'success'), 202);
     }
 
     /**
@@ -104,9 +110,12 @@ class ApiController extends Controller
         }
 
         if (isset($payload['repository']['url'])) { // github/gitlab/anything hook
-            $urlRegex = '{^(?:https?://|git://|git@)?(?P<host>[a-z0-9.-]+)[:/](?P<path>[\w.-]+/[\w.-]+?)(?:\.git)?$}i';
+            $urlRegex = '{^(?:ssh://git@|https?://|git://|git@)?(?P<host>[a-z0-9.-]+)(?::[0-9]+/|[:/])(?P<path>[\w.-]+/[\w.-]+?)(?:\.git|/)?$}i';
             $url = $payload['repository']['url'];
-        } elseif (isset($payload['canon_url']) && isset($payload['repository']['absolute_url'])) { // bitbucket hook
+        } elseif (isset($payload['repository']['links']['html']['href'])) { // bitbucket push event payload
+            $urlRegex = '{^(?:https?://|git://|git@)?(?:api\.)?(?P<host>bitbucket\.org)[/:](?P<path>[\w.-]+/[\w.-]+?)(\.git)?/?$}i';
+            $url = $payload['repository']['links']['html']['href'];
+        } elseif (isset($payload['canon_url']) && isset($payload['repository']['absolute_url'])) { // bitbucket post hook (deprecated)
             $urlRegex = '{^(?:https?://|git://|git@)?(?P<host>bitbucket\.org)[/:](?P<path>[\w.-]+/[\w.-]+?)(\.git)?/?$}i';
             $url = $payload['canon_url'].$payload['repository']['absolute_url'];
         } else {
@@ -174,6 +183,11 @@ class ApiController extends Controller
         return new JsonResponse(array('status' => 'success'), 201);
     }
 
+    /**
+     * @param string $name
+     * @param string $version
+     * @return array
+     */
     protected function getPackageAndVersionId($name, $version)
     {
         return $this->get('doctrine.dbal.default_connection')->fetchAssoc(
@@ -237,14 +251,15 @@ class ApiController extends Controller
         // put both updating the database and scanning the repository in a transaction
         $em = $this->get('doctrine.orm.entity_manager');
         $updater = $this->get('packagist.package_updater');
-        $io = new BufferIO('', OutputInterface::VERBOSITY_VERBOSE);
+        $config = Factory::createConfig();
+        $io = new BufferIO('', OutputInterface::VERBOSITY_VERY_VERBOSE, new HtmlOutputFormatter(Factory::createAdditionalStyles()));
+        $io->loadConfiguration($config);
 
         try {
+            /** @var Package $package */
             foreach ($packages as $package) {
-                $em->transactional(function($em) use ($package, $updater, $io) {
+                $em->transactional(function($em) use ($package, $updater, $io, $config) {
                     // prepare dependencies
-                    $config = Factory::createConfig();
-                    $io->loadConfiguration($config);
                     $loader = new ValidatingArrayLoader(new ArrayLoader());
 
                     // prepare repository
@@ -252,7 +267,7 @@ class ApiController extends Controller
                     $repository->setLoader($loader);
 
                     // perform the actual update (fetch and re-scan the repository's source)
-                    $updater->update($package, $repository);
+                    $updater->update($io, $config, $package, $repository);
 
                     // update the package entity
                     $package->setAutoUpdated(true);
@@ -313,8 +328,8 @@ class ApiController extends Controller
         $packages = array();
         foreach ($user->getPackages() as $package) {
             if (preg_match($urlRegex, $package->getRepository(), $candidate)
-                && $candidate['host'] === $matched['host']
-                && $candidate['path'] === $matched['path']
+                && strtolower($candidate['host']) === strtolower($matched['host'])
+                && strtolower($candidate['path']) === strtolower($matched['path'])
             ) {
                 $packages[] = $package;
             }

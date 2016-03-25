@@ -6,16 +6,18 @@ imports:
 framework:
     secret:          %secret%
     router:
-        resource: "%kernel.root_dir%/config/routing.yml"
+        resource: '%kernel.root_dir%/config/routing.yml'
         strict_requirements: %kernel.debug%
     form:            true
     csrf_protection: true
     validation:      { enable_annotations: true }
     translator:      { fallback: en }
-    templating:      { engines: ['twig'] } #assets_version: SomeVersionScheme
+    templating:      { engines: ['twig'] }
+    assets:
+        version: v=%assets_version%
     default_locale: %locale%
     session:
-        name: packagist
+        name:            packagist
         cookie_lifetime: 3600
         cookie_httponly: true
         save_path: %session_save_path%
@@ -26,22 +28,13 @@ framework:
 
 # Twig Configuration
 twig:
+    form_themes:
+        - 'PackagistWebBundle::forms.html.twig'
     debug:            %kernel.debug%
     strict_variables: %kernel.debug%
     globals:
         google_analytics: %google_analytics%
         packagist_host: %packagist_host%
-
-# Assetic Configuration
-assetic:
-    debug:          %kernel.debug%
-    use_controller: false
-    filters:
-        cssrewrite: ~
-        closure:
-            jar: %kernel.root_dir%/java/compiler.jar
-        yui_css:
-            jar: %kernel.root_dir%/java/yuicompressor-2.4.2.jar
 
 # Doctrine Configuration
 doctrine:
@@ -51,7 +44,9 @@ doctrine:
         dbname:   %database_name%
         user:     %database_user%
         password: %database_password%
-        charset:  UTF8
+        charset:  utf8mb4
+        # See https://github.com/sonata-project/SonataAdminBundle/issues/3342
+        server_version: 5.6
     orm:
         auto_generate_proxy_classes: %kernel.debug%
         auto_mapping: true
@@ -62,6 +57,12 @@ snc_redis:
             type: predis
             alias: default
             dsn: %redis_dsn%
+            options:
+                profile: 2.8
+    session:
+        client: default
+        prefix: 'sess:'
+        ttl: 3600
 
 # Swiftmailer Configuration
 swiftmailer:
@@ -79,23 +80,32 @@ fos_user:
     from_email:
         address:        %mailer_from_email%
         sender_name:    %mailer_from_name%
-    registration:
-        form:
-            handler: packagist.form.handler.registration
     profile:
         form:
             type:       packagist_user_profile
 
 hwi_oauth:
-    firewall_name: main
+    firewall_names: [main]
     connect:
         account_connector: packagist.user_provider
         registration_form_handler: packagist.oauth.registration_form_handler
         registration_form: packagist.oauth.registration_form
+    fosub:
+        username_iterations: 30
+        properties:
+            github: githubId
     resource_owners:
         github:
             type:          github
             client_id:     %github.client_id%
             client_secret: %github.client_secret%
+            options:
+                csrf: true
 
-nelmio_solarium: ~
+nelmio_solarium:
+    clients:
+        default:
+            host: %solr_host%
+            port: %solr_port%
+            path: %solr_path%
+            core: %solr_core%

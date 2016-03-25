@@ -1,7 +1,8 @@
 <?php
 
-use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\HttpKernel\Kernel;
 
 class AppKernel extends Kernel
 {
@@ -13,18 +14,19 @@ class AppKernel extends Kernel
             new Symfony\Bundle\TwigBundle\TwigBundle(),
             new Symfony\Bundle\MonologBundle\MonologBundle(),
             new Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
-            new Symfony\Bundle\AsseticBundle\AsseticBundle(),
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new FOS\UserBundle\FOSUserBundle(),
             new HWI\Bundle\OAuthBundle\HWIOAuthBundle(),
             new Snc\RedisBundle\SncRedisBundle(),
-            new Packagist\WebBundle\PackagistWebBundle(),
             new WhiteOctober\PagerfantaBundle\WhiteOctoberPagerfantaBundle(),
             new Nelmio\SolariumBundle\NelmioSolariumBundle(),
             new Nelmio\SecurityBundle\NelmioSecurityBundle(),
+            new Knp\Bundle\MenuBundle\KnpMenuBundle(),
+
+            new Packagist\WebBundle\PackagistWebBundle(),
+          
             new OldSound\RabbitMqBundle\OldSoundRabbitMqBundle(),
-            new Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle(),
             new DrupalPackagist\Bundle\DrupalPackagistBundle(),
         );
 

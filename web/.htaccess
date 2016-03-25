@@ -143,6 +143,7 @@ FileETag None
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteRule ^bundles/packagistweb/(.*) /bundles/drupalpackagist/$1 [L]
 </IfModule>
 
 # ----------------------------------------------------------------------
@@ -177,7 +178,7 @@ FileETag None
 
 <IfModule mod_rewrite.c>
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(.*)$ app.php [QSA,L]
+  RewriteRule ^(.*)$ app_dev.php [QSA,L]
 </IfModule>
 
 # ----------------------------------------------------------------------

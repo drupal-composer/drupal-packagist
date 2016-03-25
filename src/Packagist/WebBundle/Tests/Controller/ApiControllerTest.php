@@ -2,20 +2,12 @@
 
 namespace Packagist\WebBundle\Tests\Controller;
 
-use Packagist\WebBundle\Entity\User;
 use Packagist\WebBundle\Entity\Package;
+use Packagist\WebBundle\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ApiControllerTest extends WebTestCase
 {
-    public function testPackages()
-    {
-        $client = self::createClient();
-
-        $client->request('GET', '/packages.json');
-        $this->assertTrue(count(json_decode($client->getResponse()->getContent())) > 0);
-    }
-
     public function testGithubFailsCorrectly()
     {
         $client = self::createClient();
@@ -70,7 +62,7 @@ class ApiControllerTest extends WebTestCase
     }
 
     /**
-     * @depends      testGithubFailsCorrectly
+     * @depends testGithubFailsCorrectly
      * @dataProvider urlProvider
      */
     public function testUrlDetection($endpoint, $url, $expectedOK)
@@ -106,8 +98,10 @@ class ApiControllerTest extends WebTestCase
             array('github', 'https://github.com/user/repo', true),
             array('github', 'https://github.com/user/repo.git', true),
             array('github', 'git://github.com/user/repo', true),
+            array('github', 'git://github.com/User/Repo.git', true),
             array('github', 'git@github.com:user/repo.git', true),
             array('github', 'git@github.com:user/repo', true),
+            array('github', 'https://github.com/user/repo/', true),
 
             // valid bitbucket URLs
             array('bitbucket', 'bitbucket.org/user/repo', true),
@@ -117,6 +111,8 @@ class ApiControllerTest extends WebTestCase
             // valid others
             array('update-package', 'https://ghe.example.org/user/repository', true),
             array('update-package', 'https://gitlab.org/user/repository', true),
+            array('update-package', 'ssh://git@stash.xxxxx.com/uuuuu/qqqqq.git', true),
+            array('update-package', 'ssh://git@stash.xxxxx.com:2222/uuuuu/qqqqq.git', true),
 
             // invalid URLs
             array('github', 'php://github.com/user/repository', false),
@@ -126,6 +122,8 @@ class ApiControllerTest extends WebTestCase
             array('github', 'https://github.com/user', false),
             array('github', 'https://github.com/', false),
             array('github', 'https://github.com', false),
+            array('update-package', 'ssh://git@stash.zzzzz.com/kkkkk.git', false),
+            array('update-package', 'ssh://ghe.example.org/user/jjjjj.git', false),
         );
     }
 }

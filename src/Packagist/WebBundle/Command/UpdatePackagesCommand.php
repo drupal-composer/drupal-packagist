@@ -12,19 +12,19 @@
 
 namespace Packagist\WebBundle\Command;
 
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Output\OutputInterface;
-use Packagist\WebBundle\Package\Updater;
-use Drupal\ParseComposer\Repository as VcsRepository;
 use Composer\Factory;
-use Composer\Package\Loader\ValidatingArrayLoader;
-use Composer\Package\Loader\ArrayLoader;
 use Composer\IO\BufferIO;
 use Composer\IO\ConsoleIO;
+use Composer\Package\Loader\ArrayLoader;
+use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Repository\InvalidRepositoryException;
+use Drupal\ParseComposer\Repository as VcsRepository;
+use Packagist\WebBundle\Package\Updater;
+use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -42,6 +42,7 @@ class UpdatePackagesCommand extends ContainerAwareCommand
                 new InputOption('force', null, InputOption::VALUE_NONE, 'Force a re-crawl of all packages, or if a package name is given forces an update of all versions'),
                 new InputOption('delete-before', null, InputOption::VALUE_NONE, 'Force deletion of all versions before an update'),
                 new InputOption('notify-failures', null, InputOption::VALUE_NONE, 'Notify failures to maintainers by email'),
+                new InputOption('update-equal-refs', null, InputOption::VALUE_NONE, 'Force update of all versions even when they already exist'),
                 new InputArgument('package', InputArgument::OPTIONAL, 'Package name to update'),
             ))
             ->setDescription('Updates packages')
@@ -53,11 +54,7 @@ class UpdatePackagesCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $verbose = FALSE;
-
-        if ($input->hasOption('verbose')) {
-            $verbose = $input->getOption('verbose');
-        }
+        $verbose = $input->getOption('verbose');
         $force = $input->getOption('force');
         $package = $input->getArgument('package');
 
@@ -83,6 +80,8 @@ class UpdatePackagesCommand extends ContainerAwareCommand
 
         if ($input->getOption('delete-before')) {
             $flags = Updater::DELETE_BEFORE;
+        } elseif ($input->getOption('update-equal-refs')) {
+            $flags = Updater::UPDATE_EQUAL_REFS;
         }
 
         $updater = $this->getContainer()->get('packagist.package_updater');

@@ -19,16 +19,17 @@ class PackagistExtension extends \Twig_Extension
     public function getTests()
     {
         return array(
-            'existing_package' => new \Twig_Test_Method($this, 'packageExistsTest'),
-            'existing_provider' => new \Twig_Test_Method($this, 'providerExistsTest'),
-            'numeric' => new \Twig_Test_Method($this, 'numericTest'),
+            new \Twig_SimpleTest('existing_package', [$this, 'packageExistsTest']),
+            new \Twig_SimpleTest('existing_provider', [$this, 'providerExistsTest']),
+            new \Twig_SimpleTest('numeric', [$this, 'numericTest']),
         );
     }
 
     public function getFilters()
     {
         return array(
-            'prettify_source_reference' => new \Twig_Filter_Method($this, 'prettifySourceReference')
+            new \Twig_SimpleFilter('prettify_source_reference', [$this, 'prettifySourceReference']),
+            new \Twig_SimpleFilter('gravatar_hash', [$this, 'generateGravatarHash'])
         );
     }
 
@@ -67,5 +68,10 @@ class PackagistExtension extends \Twig_Extension
         }
 
         return $sourceReference;
+    }
+
+    public function generateGravatarHash($email)
+    {
+        return md5(strtolower($email));
     }
 }

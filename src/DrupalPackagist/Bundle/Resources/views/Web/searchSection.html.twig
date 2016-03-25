@@ -1,0 +1,18 @@
+<section class="wrapper wrapper-search">
+    <div class="container {% if showSearchDesc == 'show' %}with-description{% endif %}">
+        {{ render(controller('PackagistWebBundle:Web:searchForm', { req: app.request })) }}
+
+        {%- if showSearchDesc == 'show' %}
+        <div class="row">
+            <div class="col-sm-9 hidden-xs">
+                <img src="{{ asset('bundles/drupalpackagist/img/drupal-packagist.svg') }}" class="logo">
+                <p>Drupal Packagist is a <a href="http://getcomposer.org/">Composer</a>
+                    repository for <a href="https://www.drupal.org">Drupal</a>.
+                    It provides all projects from Drupal.org as packages for
+                    Composer.
+                </p>
+            </div>
+        </div>
+        {%- endif %}
+    </div>
+</section>
