@@ -178,7 +178,7 @@ FileETag None
 
 <IfModule mod_rewrite.c>
   RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteRule ^(.*)$ app_dev.php [QSA,L]
+  RewriteRule ^(.*)$ app.php [QSA,L]
 </IfModule>
 
 # ----------------------------------------------------------------------
