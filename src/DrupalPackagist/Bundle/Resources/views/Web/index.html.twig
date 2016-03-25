@@ -1,0 +1,98 @@
+{% extends "PackagistWebBundle::layout.html.twig" %}
+
+{% block search %}
+    <div class="box">
+        <p>Drupal Packagist is the <a href="http://getcomposer.org/">Composer</a> repository for <a href="https://www.drupal.org">Drupal</a>.
+          It provides all projects from drupal.org as packages for Composer.
+          <br><a href="{{ path('browse') }}">Browse packages</a>.</p>
+    </div>
+
+    {{ parent() }}
+{% endblock %}
+
+{% block content %}
+    <div class="box clearfix">
+        <section class="getting-started">
+            <h1>Getting started</h1>
+            <div>
+                <h2>Learn about Composer</h2>
+                <p>
+                  For getting started with Composer in general, please visit the
+                  <a href="https://getcomposer.org/doc/00-intro.md">offical documentation</a>.
+                </p>
+                <h2>Add Drupal Packagist</h2>
+                <p>
+                  For being able to add any Drupal project (module, theme, drush extension)
+                  to your composer project, you have to add the Drupal Packagist to your root
+                  <em>composer.json</em>'s repository section:
+                </p>
+                <pre>
+{
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://packagist.drupal-composer.org"
+    }
+  ]
+}
+</pre>
+                <h2>Kickstart</h2>
+                <p>
+                  We provide project templates for an easy start. Look at
+                  <a href="https://github.com/drupal-composer/drupal-project">drupal-composer/drupal-project</a> for details.
+                </p>
+                <p>
+                  Visit <a href="http://drupal-composer.org/">drupal-composer.org</a> for a general overview on the subject.
+                </p>
+            </div>
+        </section>
+
+        <section class="publishing-packages">
+            <h1>Drupal 7 & Drupal 8</h1>
+            <div>
+              <p>
+                Basically Drupal Packagist will work for <em>Drupal 7</em> and
+                <em>Drupal 8</em> projects.
+              </p>
+              <h2>Composer installers</h2>
+              <p>
+                In general you will need to add a Composer Installer to your project
+                (like <a href="https://github.com/davidbarratt/custom-installer">davidbarratt/custom-installer</a>
+                or <a href="https://github.com/davidbarratt/custom-installer">composer/installers</a>),
+                so modules, themes, profiles and drush extensions are downloaded to
+                the correct directories, dependent on your Drupal installation.
+                </ul>
+              </p>
+              <h2>Adding modules, themes, …</h2>
+              <p>
+                Besides that, you can use <code>composer install</code>, <code>composer require</code>,
+                <code>composer update</code> and <code>composer remove</code> like with
+                any other composer package.
+              </p>
+              <pre>
+  "require": [
+    {
+      "drupal/views": "^7.3.0",
+      "drupal/radix": "7.*",
+      "drupal/master": "7.3.*"
+    }
+  ]
+</pre>
+              <h2>Documentation</h2>
+              <p>
+                <a href="https://www.drupal.org/node/2404989">Documentation on drupal.org</a> was started
+                but is far from complete. Any help is welcome to improve the situation there.
+              </p>
+            </div>
+        </section>
+    </div>
+
+    <div class="box">
+      <h2>Issues</h2>
+      <p>In case any problem occurs, please post an issue to the
+        <a href="https://github.com/drupal-composer/drupal-packagist/issues">Drupal Packagist issue queue</a>.
+        For wrong information on packages, please use the
+        <a href="https://github.com/drupal-composer/drupal-parse-composer/issues">Drupal parse composer issue queue</a>.
+      </p>
+    </div>
+{% endblock %}

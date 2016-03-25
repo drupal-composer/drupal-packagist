@@ -16,3 +16,7 @@ vendor/
 composer.phar
 /nbproject
 .vagrant
+
+# Frontend
+node_modules
+.sass-cache

@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "main": "Gruntfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-sass": "git://github.com/sindresorhus/grunt-sass"
+  }
+}

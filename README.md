@@ -87,3 +87,13 @@ There are a few commands you should run periodically (ideally set up a cron job 
     app/console packagist:index --no-debug --env=prod
 
 The latter is optional and only required if you are running a solr server.
+
+Development: Frontend
+---------------------
+
+[Grunt](http://gruntjs.com/) is used for processing frontend styles in
+development (mainly generating css from sass) for the DrupalPackagist Bundle.
+
+- Install node/npm/grunt
+- `npm install`
+- `grunt` (will watch for changes in scss)
