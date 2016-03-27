@@ -17,7 +17,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/a8e9df55dc62d8806360be2f79ad112b8678d397",
+                "url": "https://api.github.com/repos/composer/composer/zipball/95c263284a9a47c63279934b398c53f080624606",
                 "reference": "7e1a23eef7b2c0aeecdd4c70eda53d39265cf7a6",
                 "shasum": ""
             },
@@ -1045,7 +1045,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2016-03-25 20:01:10"
+            "time": "2016-03-25 18:50:57"
         },
         {
             "name": "ezyang/htmlpurifier",
