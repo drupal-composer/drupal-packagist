@@ -17,7 +17,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/composer/zipball/95c263284a9a47c63279934b398c53f080624606",
+                "url": "https://api.github.com/repos/composer/composer/zipball/40c14709f79f9d7ea35ac969cfbd7f41beb525bb",
                 "reference": "7e1a23eef7b2c0aeecdd4c70eda53d39265cf7a6",
                 "shasum": ""
             },
@@ -1015,7 +1015,13 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "ebca6c4e716ebbb947e9c29b717e58e601f74780"
+                "reference": "35e780a217266d5413ff866113ff4657cc241b52"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/drupal-composer/drupal-parse-composer/zipball/35e780a217266d5413ff866113ff4657cc241b52",
+                "reference": "35e780a217266d5413ff866113ff4657cc241b52",
+                "shasum": ""
             },
             "require": {
                 "drupal/drupal": "7.*",
@@ -1039,13 +1045,14 @@
                     "bootstrap.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "authors": [
                 {
                     "name": "Will Milton",
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2016-03-25 18:50:57"
+            "time": "2016-02-08 20:13:39"
         },
         {
             "name": "ezyang/htmlpurifier",
