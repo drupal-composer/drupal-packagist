@@ -14,7 +14,7 @@
 <section class="col-d-12">
 <h3 id="list-packages-by-organization"> List packages by organization </h3>
 <pre>
-GET https://packagist.org/packages/list.json?vendor=[vendor]
+GET https://packagist.drupal-composer.org/packages/list.json?vendor=[vendor]
 <code>
 {
   "packageNames": [
@@ -28,14 +28,14 @@ GET https://packagist.org/packages/list.json?vendor=[vendor]
 <section class="col-d-12">
 <h3 id="search-packages-by-tag">Search packages by tag</h3>
 <pre>
-GET https://packagist.org/search.json?tags=[tag]
+GET https://packagist.drupal-composer.org/search.json?tags=[tag]
 <code>
 {
   "results": [
     {
       "name": "[vendor]/[package]",
       "description": "[description]",
-      "url": "https://packagist.org/packages/[vendor]/[package]",
+      "url": "https://packagist.drupal-composer.org/packages/[vendor]/[package]",
       "repository": "[repository url]",
       "downloads": [number of downloads],
       "favers": [number of favers]
@@ -51,14 +51,14 @@ GET https://packagist.org/search.json?tags=[tag]
 <section class="col-d-12">
 <h3 id="search-packages-by-name">Search packages by name </h3>
 <pre>
-GET https://packagist.org/search.json?q=[query]
+GET https://packagist.drupal-composer.org/search.json?q=[query]
 <code>
 {
   "results" : [
     {
       "name": "[vendor]/[package]",
       "description": "[description]",
-      "url": "https://packagist.org/packages/[vendor]/[package]",
+      "url": "https://packagist.drupal-composer.org/packages/[vendor]/[package]",
       "repository": [repository url],
       "downloads": [number of downloads],
       "favers": [number of favers]
@@ -66,7 +66,7 @@ GET https://packagist.org/search.json?q=[query]
     ...
   ],
   "total": [number of results],
-  "next": "https://packagist.org/search.json?q=[query]&amp;page=[next page number]"
+  "next": "https://packagist.drupal-composer.org/search.json?q=[query]&amp;page=[next page number]"
 }
 </code>
 </section>
@@ -74,7 +74,7 @@ GET https://packagist.org/search.json?q=[query]
 <section class="col-d-12">
 <h3 id="get-package-by-name">Get package by name </h3>
 <pre>
-GET https://packagist.org/packages/[vendor]/[package].json
+GET https://packagist.drupal-composer.org/packages/[vendor]/[package].json
 <code>
 {
   "package": {
