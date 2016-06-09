@@ -39,7 +39,7 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <h1 class="navbar-brand"><a href="{{ path('home') }}">Drupal Packagist</a> <em class="hidden-sm hidden-xs">The Package Repository for Drupal</em></h1>
+                        <h1 class="navbar-brand"><a href="{{ path('home') }}">Drupal Packagist</a> <em class="hidden-sm hidden-xs">The (deprecated) Package Repository for Drupal</em></h1>
                     </div>
 
                     <div class="collapse navbar-collapse">
@@ -63,6 +63,12 @@
                 </div>
             </nav>
         </header>
+
+        <div class="deprecation-notice">
+             <div class="container">
+                 <h1>Drupal Packagist is deprecated, you should use the <a href="https://www.drupal.org/node/2718229">official Package Repository from Drupal.org</a> instead.</h1>
+             </div>
+        </div>
 
         {{ include("PackagistWebBundle:Web:searchSection.html.twig", {showSearchDesc: showSearchDesc|default('show')}) }}
 

@@ -385,7 +385,7 @@ strong {
 }
 
 .wrapper-search .container {
-    padding: 15px 20px 25px;
+    padding: 25px 20px 25px;
 }
 @media (min-width: 768px) {
   .wrapper-search .container.with-description {
@@ -1561,3 +1561,19 @@ svg.chart {
 .icon-lock:before { content: '🔒'; } /* '\1f512' */
 .icon-lock-open:before { content: '🔓'; } /* '\1f513' */
 .icon-rocket:before { content: '🚀'; } /* '\1f680' */
+
+.deprecation-notice {
+    background: #FFBBBB;
+    color: #fff;
+    padding: 25px 20px 35px 20px;
+}
+
+.deprecation-notice h1 {
+    color: #2d2d32;
+    margin: 0;
+    font-weight: bold;
+}
+
+.deprecation-notice h1 a:hover {
+    color: #0678be;
+}
