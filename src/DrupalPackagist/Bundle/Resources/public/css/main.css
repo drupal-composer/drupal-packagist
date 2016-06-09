@@ -1565,12 +1565,12 @@ svg.chart {
 .deprecation-notice {
     background: #FFBBBB;
     color: #fff;
-    padding: 25px 20px 35px 20px;
+    padding: 10px 20px 25px 20px;
 }
 
-.deprecation-notice h1 {
+.deprecation-notice h1,
+.deprecation-notice p {
     color: #2d2d32;
-    margin: 0;
     font-weight: bold;
 }
 
