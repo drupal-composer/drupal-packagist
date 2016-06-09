@@ -62,6 +62,8 @@ class Upserter {
             $repository->setLoader($loader);
             $output->write("Updating $packageName");
             $this->updater->update(
+                $output,
+                $config,
                 $package,
                 $repository
             );
