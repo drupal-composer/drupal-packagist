@@ -1015,7 +1015,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "d8e30cf22f20477359041e0e4c57d3bc8329a038"
+                "reference": "177c69d07c547e7aa6ca6c560b15870d39dd9381"
             },
             "require": {
                 "composer/semver": "^1.4",
@@ -1046,7 +1046,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2016-04-06 19:57:00"
+            "time": "2016-07-09 20:16:25"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -1102,7 +1102,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/16b04c49af05dd3fb381e4abe04f0e5e231ac76d",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSUserBundle/zipball/a39d000577d735444bee97de9f5ee382e3f85fa1",
                 "reference": "a39d000577d735444bee97de9f5ee382e3f85fa1",
                 "shasum": ""
             },
@@ -1254,6 +1254,7 @@
                 "rest",
                 "web service"
             ],
+            "abandoned": "guzzlehttp/guzzle",
             "time": "2015-03-18 18:23:50"
         },
         {
