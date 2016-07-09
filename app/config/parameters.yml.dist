@@ -59,18 +59,6 @@ old_sound_rabbit_mq:
             user:     'guest'
             password: 'guest'
             vhost:    '/'
-    rpc_servers:
-        update_packages:
-            connection: default
-            callback:   packagist.background_package_updater
-        add_packages:
-            connection: default
-            callback:   packagist.background_package_adder
-    rpc_clients:
-        add_packages:
-            connection: default
-        update_packages:
-            connection: default
     producers:
         add_packages:
             connection: default
@@ -98,4 +86,4 @@ old_sound_rabbit_mq:
             exchange_options:
                 type: direct
                 name: update-packages
-            callback: packagist.background_package_updater
+            callback: packagist.background_package_updater_consumer

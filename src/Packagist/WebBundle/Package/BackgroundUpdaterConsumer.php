@@ -8,7 +8,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class BackgroundUpdater implements ConsumerInterface
+class BackgroundUpdaterConsumer implements ConsumerInterface
 {
 
     /**

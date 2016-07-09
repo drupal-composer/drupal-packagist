@@ -106,24 +106,22 @@ services:
         tags:
             - { name: knp_menu.menu, alias: profile_menu }
 
-    packagist.background_package_updater:
-        class: Packagist\WebBundle\Package\BackgroundUpdater
-        arguments:
-            - @service_container
     packagist.package_upserter:
         class: Packagist\WebBundle\Package\Upserter
         arguments:
             - @doctrine
             - @router
             - @packagist.package_updater
+
+    packagist.background_package_updater_consumer:
+        class: Packagist\WebBundle\Package\BackgroundUpdaterConsumer
+        arguments:
+            - @service_container
+
     packagist.background_package_upsert_consumer:
         class: Packagist\WebBundle\Package\BackgroundUpsertConsumer
         arguments:
             - @packagist.package_upserter
-    packagist.background_package_adder:
-        class: Packagist\WebBundle\Package\BackgroundAdder
-        arguments:
-            - @doctrine
 
 parameters:
     security.exception_listener.class: Packagist\WebBundle\Security\ExceptionListener

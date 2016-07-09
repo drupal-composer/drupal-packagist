@@ -36,14 +36,16 @@ class Upserter {
         $res = $em->createQuery("SELECT p.name FROM Packagist\WebBundle\Entity\Package p WHERE p.name = :name")
             ->setParameters(['name' => $packageName])
             ->getResult();
-        if (empty($res)) {
-            $output->write("adding $packageName");
-            $package = new Package();
-            $package->setRepository($url);
-            $package->setName($packageName);
-            $em->persist($package);
-            $em->flush();
+        if (!empty($res)) {
+            $output->write("{$packageName} already exists.");
+            return;
         }
+        $output->write("adding $packageName");
+        $package = new Package();
+        $package->setRepository($url);
+        $package->setName($packageName);
+        $em->persist($package);
+        $em->flush();
         $releaseInfoFactory = new ReleaseInfoFactory();
         $releases = $releaseInfoFactory
             ->getReleaseInfo($packageName, [7, 8]);
