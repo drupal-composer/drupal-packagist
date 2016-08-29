@@ -84,16 +84,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "1.4.0",
+            "version": "1.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "84c47f3d8901440403217afc120683c7385aecb8"
+                "reference": "03c9de5aa25e7672c4ad251eeaba0c47a06c8b98"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/84c47f3d8901440403217afc120683c7385aecb8",
-                "reference": "84c47f3d8901440403217afc120683c7385aecb8",
+                "url": "https://api.github.com/repos/composer/semver/zipball/03c9de5aa25e7672c4ad251eeaba0c47a06c8b98",
+                "reference": "03c9de5aa25e7672c4ad251eeaba0c47a06c8b98",
                 "shasum": ""
             },
             "require": {
@@ -142,7 +142,7 @@
                 "validation",
                 "versioning"
             ],
-            "time": "2016-03-30 13:16:03"
+            "time": "2016-06-02 09:04:51"
         },
         {
             "name": "composer/spdx-licenses",
@@ -1015,7 +1015,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal-composer/drupal-parse-composer.git",
-                "reference": "177c69d07c547e7aa6ca6c560b15870d39dd9381"
+                "reference": "fe407725250f6add3132d89c0377db932ef38dc0"
             },
             "require": {
                 "composer/semver": "^1.4",
@@ -1046,7 +1046,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2016-07-09 20:16:25"
+            "time": "2016-08-29 20:19:59"
         },
         {
             "name": "ezyang/htmlpurifier",
