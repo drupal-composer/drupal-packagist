@@ -71,6 +71,7 @@ swiftmailer:
     username:  %mailer_user%
     password:  %mailer_password%
     spool:     { type: memory }
+    disable_delivery: true
 
 fos_user:
     db_driver:     orm
