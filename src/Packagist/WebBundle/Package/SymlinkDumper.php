@@ -292,6 +292,7 @@ class SymlinkDumper
             $this->rootFile['notify-batch'] = $this->router->generate('track_download_batch');
             $this->rootFile['providers-url'] = $this->router->generate('home') . 'p/%package%$%hash%.json';
             $this->rootFile['search'] = $this->router->generate('search', array('_format' => 'json')) . '?q=%query%';
+            $this->rootFile['warning'] = 'Drupal Packagist is deprecated, you should use the official Package Repository from Drupal.org instead: (https://www.drupal.org/node/2718229).';
 
             if ($verbose) {
                 echo 'Dumping individual listings'.PHP_EOL;
