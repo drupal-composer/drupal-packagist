@@ -1,0 +1,1 @@
+# This project is deprecated, use [https://packages.drupal.org/8](https://packages.drupal.org/8) instead. Please read [Using packages.drupal.org](https://www.drupal.org/docs/develop/using-composer/using-packagesdrupalorg) for more information.
